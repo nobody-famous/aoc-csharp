@@ -10,6 +10,7 @@ namespace aoc_csharp
             new aoc.y2019.day1.Part1("input/2019/1/puzzle.txt", 3279287),
             new aoc.y2019.day1.Part2("input/2019/1/puzzle.txt", 4916076),
             new aoc.y2019.day2.Part1("input/2019/2/puzzle.txt", 3101844),
+            new aoc.y2019.day2.Part2("input/2019/2/puzzle.txt", 8478),
         };
 
         static void runAll(List<Problem> toRun)
@@ -40,7 +41,7 @@ namespace aoc_csharp
 
         static void Main(string[] args)
         {
-            var probs = new List<Problem>() { new aoc.y2019.day2.Part1("input/2019/2/puzzle.txt", 3101844) };
+            // var probs = new List<Problem>() { new aoc.y2019.day2.Part2("input/2019/2/puzzle.txt", 8478) };
 
             runAll(probs);
         }
