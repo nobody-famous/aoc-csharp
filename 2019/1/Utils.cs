@@ -6,8 +6,7 @@ namespace aoc.y2019.day1
     {
         protected Solver(string fileName, int expected) : base(fileName, expected) { }
 
-        protected int findFuel(int mass)
-        {
+        protected int findFuel(int mass) {
             return (mass / 3) - 2;
         }
     }

@@ -4,13 +4,11 @@ namespace aoc.y2019.day1
     {
         public Part2(string fileName, int expected) : base(fileName, expected) { }
 
-        private int calcFuel(int mass)
-        {
+        private int calcFuel(int mass) {
             var total = 0;
 
             var fuel = findFuel(mass);
-            while (fuel > 0)
-            {
+            while (fuel > 0) {
                 total += fuel;
                 fuel = findFuel(fuel);
             }
@@ -18,8 +16,7 @@ namespace aoc.y2019.day1
             return total;
         }
 
-        protected override int doWork()
-        {
+        protected override int doWork() {
             var masses = Parser.parseInput(this.inputFile);
             var total = 0;
 

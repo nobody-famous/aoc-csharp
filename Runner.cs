@@ -13,20 +13,15 @@ namespace aoc_csharp
             new aoc.y2019.day2.Part2("input/2019/2/puzzle.txt", 8478),
         };
 
-        static void runAll(List<Problem> toRun)
-        {
+        static void runAll(List<Problem> toRun) {
             var total = 0;
 
-            foreach (var prob in toRun)
-            {
+            foreach (var prob in toRun) {
                 var start = DateTime.Now.Millisecond;
 
-                try
-                {
+                try {
                     prob.run();
-                }
-                catch (System.Exception ex)
-                {
+                } catch (System.Exception ex) {
                     Console.WriteLine($"{prob} FAILED: {ex.Message}");
                 }
 
@@ -39,8 +34,7 @@ namespace aoc_csharp
             Console.WriteLine($"Total {total} ms");
         }
 
-        static void Main(string[] args)
-        {
+        static void Main(string[] args) {
             // var probs = new List<Problem>() { new aoc.y2019.day2.Part2("input/2019/2/puzzle.txt", 8478) };
 
             runAll(probs);

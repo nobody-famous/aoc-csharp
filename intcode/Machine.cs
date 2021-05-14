@@ -7,8 +7,7 @@ namespace aoc.intcode
         bool halt = false;
         bool debug = false;
 
-        public Machine(int[] prog)
-        {
+        public Machine(int[] prog) {
             this.prog = prog;
         }
 
@@ -20,13 +19,11 @@ namespace aoc.intcode
 
         public void setDebug(bool debug) { this.debug = debug; }
 
-        public bool isHalted()
-        {
+        public bool isHalted() {
             return halt;
         }
 
-        private void opCode1()
-        {
+        private void opCode1() {
             var arg1 = prog[prog[ip + 1]];
             var arg2 = prog[prog[ip + 2]];
             var addr = prog[ip + 3];
@@ -38,8 +35,7 @@ namespace aoc.intcode
             ip += 4;
         }
 
-        private void opCode2()
-        {
+        private void opCode2() {
             var arg1 = prog[prog[ip + 1]];
             var arg2 = prog[prog[ip + 2]];
             var addr = prog[ip + 3];
@@ -49,28 +45,24 @@ namespace aoc.intcode
             ip += 4;
         }
 
-        private void opCode99()
-        {
+        private void opCode99() {
             halt = true;
             ip += 1;
         }
 
-        public void step()
-        {
-            if (halt || ip > prog.Length)
-            {
+        public void step() {
+            if (halt || ip > prog.Length) {
                 throw new System.Exception("HALTED");
             }
 
             var opCode = prog[ip];
 
-            switch (opCode)
-            {
-                case 1: opCode1(); break;
-                case 2: opCode2(); break;
-                case 99: opCode99(); break;
-                default:
-                    throw new System.Exception($"Unhandled opcode {opCode}");
+            switch (opCode) {
+            case 1: opCode1(); break;
+            case 2: opCode2(); break;
+            case 99: opCode99(); break;
+            default:
+                throw new System.Exception($"Unhandled opcode {opCode}");
             }
         }
     }
