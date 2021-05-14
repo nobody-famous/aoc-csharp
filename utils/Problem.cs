@@ -12,18 +12,15 @@ namespace aoc.utils
 
         protected abstract T doWork();
 
-        public void run()
-        {
+        public void run() {
             var answer = doWork();
 
-            if (!this.expected.Equals(answer))
-            {
-                throw new System.Exception($"{answer} != {this.expected}");
+            if (expected == null || !expected.Equals(answer)) {
+                throw new System.Exception($"{answer} != {expected}");
             }
         }
 
-        protected ProblemSolver(string inputFile, T expected)
-        {
+        protected ProblemSolver(string inputFile, T expected) {
             this.inputFile = inputFile;
             this.expected = expected;
         }
