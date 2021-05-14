@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using aoc.utils;
+using aoc.utils.geometry;
 
 namespace aoc.y2019.day3
 {
