@@ -2,9 +2,7 @@ namespace aoc.y2019.day1
 {
     class Part1 : Solver
     {
-        public Part1(string inputFile, int expected) : base(inputFile, expected)
-        {
-        }
+        public Part1(string inputFile, int expected) : base(inputFile, expected) { }
 
         protected override int doWork()
         {
