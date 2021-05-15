@@ -98,9 +98,7 @@ namespace aoc.intcode
                 throw new System.Exception("No output provider");
             }
 
-            var addr = prog[ip + 1];
-            var mode = getMode(modes, 1);
-            var value = mode == 0 ? prog[addr] : prog[ip + 1];
+            var value = getArg(modes, 1);
 
             output.data(value);
 
