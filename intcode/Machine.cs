@@ -107,6 +107,56 @@ namespace aoc.intcode
             ip += 2;
         }
 
+        private void opCode5(int modes) {
+            var arg1 = getArg(modes, 1);
+            var arg2 = getArg(modes, 2);
+
+            if (debug) { System.Console.WriteLine($"{ip} JNE {arg1} {arg2}"); }
+
+            if (arg1 != 0) {
+                ip = arg2;
+            } else {
+                ip += 3;
+            }
+        }
+
+        private void opCode6(int modes) {
+            var arg1 = getArg(modes, 1);
+            var arg2 = getArg(modes, 2);
+
+            if (debug) { System.Console.WriteLine($"{ip} JEQ {arg1} {arg2}"); }
+
+            if (arg1 == 0) {
+                ip = arg2;
+            } else {
+                ip += 3;
+            }
+        }
+
+        private void opCode7(int modes) {
+            var arg1 = getArg(modes, 1);
+            var arg2 = getArg(modes, 2);
+            var addr = prog[ip + 3];
+
+            if (debug) { System.Console.WriteLine($"{ip} LT {arg1} {arg2} => {addr}"); }
+
+            prog[addr] = (arg1 < arg2) ? 1 : 0;
+
+            ip += 4;
+        }
+
+        private void opCode8(int modes) {
+            var arg1 = getArg(modes, 1);
+            var arg2 = getArg(modes, 2);
+            var addr = prog[ip + 3];
+
+            if (debug) { System.Console.WriteLine($"{ip} EQ {arg1} {arg2} => {addr}"); }
+
+            prog[addr] = (arg1 == arg2) ? 1 : 0;
+
+            ip += 4;
+        }
+
         private void opCode99() {
             halt = true;
             ip += 1;
@@ -124,6 +174,10 @@ namespace aoc.intcode
             case 2: opCode2(instr.modes); break;
             case 3: opCode3(); break;
             case 4: opCode4(instr.modes); break;
+            case 5: opCode5(instr.modes); break;
+            case 6: opCode6(instr.modes); break;
+            case 7: opCode7(instr.modes); break;
+            case 8: opCode8(instr.modes); break;
             case 99: opCode99(); break;
             default:
                 throw new System.Exception($"Unhandled opcode {instr}");
