@@ -1,18 +1,23 @@
 namespace aoc.y2019.day4
 {
-    class Part1 : Solver
+    class Part2 : Solver
     {
-        public Part1(string file, int exp) : base(file, exp) { }
-
+        public Part2(string file, int exp) : base(file, exp) { }
 
         protected override bool isValid(int[] value) {
+            var count = 1;
+
             for (var ndx = 1; ndx < value.Length; ndx += 1) {
                 if (value[ndx - 1] == value[ndx]) {
+                    count += 1;
+                } else if (count == 2) {
                     return true;
+                } else {
+                    count = 1;
                 }
             }
 
-            return false;
+            return count == 2;
         }
     }
 }
