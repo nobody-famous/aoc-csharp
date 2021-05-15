@@ -32,20 +32,58 @@ namespace aoc.y2019.day4
 
                 ndx -= 1;
             }
+
+            var v = value[ndx];
+            while (ndx < value.Length) {
+                value[ndx] = v;
+                ndx += 1;
+            }
+        }
+
+        private bool isValid(int[] value) {
+            for (var ndx = 1; ndx < value.Length; ndx += 1) {
+                if (value[ndx - 1] == value[ndx]) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool lessThan(int[] v1, int[] v2) {
+            for (var ndx = 0; ndx < v1.Length; ndx += 1) {
+                if (v1[ndx] < v2[ndx]) {
+                    return true;
+                } else if (v1[ndx] > v2[ndx]) {
+                    return false;
+                }
+            }
+
+            return false;
+        }
+
+        private void printArray(int[] value) {
+            for (var ndx = 0; ndx < value.Length; ndx += 1) {
+                System.Console.Write(value[ndx]);
+            }
+
+            System.Console.WriteLine();
         }
 
         protected override int doWork() {
             var (start, end) = Parser.parseInput(inputFile);
 
             findFirst(start);
-            increment(start);
 
-            foreach (var ch in start) {
-                System.Console.Write($"{ch}");
+            var count = 0;
+            while (lessThan(start, end)) {
+                increment(start);
+                if (isValid(start)) {
+                    count += 1;
+                }
             }
-            System.Console.WriteLine();
 
-            throw new System.NotImplementedException();
+            return count;
         }
     }
 }
