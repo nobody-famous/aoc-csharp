@@ -22,7 +22,9 @@ namespace aoc.intcode
         OutputHandler? output;
 
         public Machine(int[] prog, InputProvider? input = null, OutputHandler? output = null) {
-            this.prog = prog;
+            this.prog = new int[prog.Length];
+            System.Array.Copy(prog, this.prog, prog.Length);
+
             this.input = input;
             this.output = output;
         }
@@ -164,7 +166,7 @@ namespace aoc.intcode
 
         public void step() {
             if (halt || ip > prog.Length) {
-                throw new System.Exception("HALTED");
+                return;
             }
 
             var instr = new Instr(prog[ip] % 100, prog[ip] / 100);
