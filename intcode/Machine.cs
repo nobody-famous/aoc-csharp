@@ -166,7 +166,7 @@ namespace aoc.intcode
 
         public void step() {
             if (halt || ip > prog.Length) {
-                throw new System.Exception("HALTED");
+                return;
             }
 
             var instr = new Instr(prog[ip] % 100, prog[ip] / 100);
