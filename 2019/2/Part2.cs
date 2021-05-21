@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using aoc.intcode;
 
 namespace aoc.y2019.day2
@@ -8,7 +10,7 @@ namespace aoc.y2019.day2
 
         public Part2(string fileName, int exp) : base(fileName, exp) { }
 
-        private int? findVerb(int[] prog, int noun) {
+        private (int, int)? findVerb(int[] prog, int noun) {
             var copy = new int[prog.Length];
 
             for (var verb = 0; verb < 100; verb += 1) {
@@ -16,7 +18,7 @@ namespace aoc.y2019.day2
 
                 var value = runMachine(copy, noun, verb);
                 if (value == target) {
-                    return verb;
+                    return (noun, verb);
                 }
             }
 
@@ -24,11 +26,19 @@ namespace aoc.y2019.day2
         }
 
         private (int, int)? findValues(int[] prog) {
-            for (var noun = 0; noun < 100; noun += 1) {
-                var verb = findVerb(prog, noun);
+            var tasks = new List<Task<(int, int)?>>();
 
-                if (verb is int v) {
-                    return (noun, v);
+            for (var noun = 0; noun < 100; noun += 1) {
+                var n = noun;
+
+                tasks.Add(Task.Run(() => findVerb(prog, n)));
+            }
+
+            foreach (var task in tasks) {
+                var res = task.Result;
+
+                if (res is (int, int) item) {
+                    return item;
                 }
             }
 

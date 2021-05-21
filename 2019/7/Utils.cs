@@ -3,19 +3,20 @@ using aoc.intcode;
 
 namespace aoc.y2019.day7
 {
-    class Input : InputProvider
+    class Provider : Listener
     {
         protected int phase;
         protected int? signal;
         protected bool sentPhase = false;
+        protected int? lastValue;
 
-        public Input(int phase) {
+        public Provider(int phase) {
             this.phase = phase;
         }
 
         public void setSignal(int value) { signal = value; }
 
-        public int next() {
+        public int input() {
             if (!sentPhase) {
                 sentPhase = true;
                 return phase;
@@ -27,13 +28,8 @@ namespace aoc.y2019.day7
                 throw new System.Exception("No signal for input");
             }
         }
-    }
 
-    class Output : OutputHandler
-    {
-        protected int? lastValue;
-
-        public void data(int value) { lastValue = value; }
+        public void output(int value) { lastValue = value; }
 
         public bool hasValue() {
             return lastValue != null;
@@ -50,7 +46,7 @@ namespace aoc.y2019.day7
         }
     }
 
-    record Amp(Machine mach, Input inp, Output outp);
+    record Amp(Machine mach, Provider provider);
 
     abstract class Solver : aoc.utils.ProblemSolver<int>
     {
@@ -63,21 +59,20 @@ namespace aoc.y2019.day7
         abstract protected int runChain(List<Amp> amps);
 
         protected Amp makeAmp(int[] prog, int phase) {
-            var inp = new Input(phase);
-            var outp = new Output();
+            var provider = new Provider(phase);
 
-            return new Amp(new Machine(prog, inp, outp), inp, outp);
+            return new Amp(new Machine(prog, provider), provider);
         }
 
         protected int? runToOutput(Amp amp) {
-            while (!amp.outp.hasValue()) {
+            while (!amp.provider.hasValue()) {
                 amp.mach.step();
                 if (amp.mach.isHalted()) {
                     return null;
                 }
             }
 
-            return amp.outp.getValue();
+            return amp.provider.getValue();
         }
 
         protected int runPerm(int[] prog, List<int> perm) {

@@ -17,7 +17,7 @@ namespace aoc.y2019.day7
                     continue;
                 }
 
-                amp.inp.setSignal((int)signal);
+                amp.provider.setSignal((int)signal);
                 var nextSignal = runToOutput(amp);
 
                 if (nextSignal == null) {

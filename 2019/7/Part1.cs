@@ -11,7 +11,7 @@ namespace aoc.y2019.day7
 
             foreach (var amp in chain) {
                 if (signal is int sig) {
-                    amp.inp.setSignal(sig);
+                    amp.provider.setSignal(sig);
                     signal = runToOutput(amp);
                 }
             }
