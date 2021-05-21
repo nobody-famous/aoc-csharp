@@ -2,26 +2,20 @@ using aoc.intcode;
 
 namespace aoc.y2019.day5
 {
-    class Input : InputProvider
+    class Provider : Listener
     {
-        private int value;
+        int value;
 
-        public Input(int value) { this.value = value; }
+        int lastOutput = 0;
 
-        public int next() {
-            return value;
-        }
-    }
-
-    class Output : OutputHandler
-    {
-        private int last = 0;
-
-        public void data(int value) {
-            last = value;
+        public Provider(int inputValue) {
+            this.value = inputValue;
         }
 
-        public int getLastOutput() { return last; }
+        public int input() { return value; }
+        public void output(int value) { lastOutput = value; }
+
+        public int getLastOutput() { return lastOutput; }
     }
 
     abstract class Solver : aoc.utils.ProblemSolver<int>
@@ -34,13 +28,13 @@ namespace aoc.y2019.day5
             }
         }
 
-        protected int doWork(InputProvider input, Output outHandler) {
+        protected int doWork(Provider provider) {
             var prog = intcode.Parser.parseInput(inputFile);
-            var mach = new Machine(prog, input, outHandler);
+            var mach = new Machine(prog, provider);
 
             runMachine(mach);
 
-            return outHandler.getLastOutput();
+            return provider.getLastOutput();
         }
     }
 }

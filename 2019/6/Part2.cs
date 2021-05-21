@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace aoc.y2019.day6
 {
@@ -42,8 +43,11 @@ namespace aoc.y2019.day6
 
         protected override int doWork() {
             var map = Parser.parseInput(inputFile);
-            var youPath = findPath(map, "COM", "YOU");
-            var santaPath = findPath(map, "COM", "SAN");
+            var youTask = Task.Run<List<string>?>(() => findPath(map, "COM", "YOU"));
+            var santaTask = Task.Run<List<string>?>(() => findPath(map, "COM", "SAN"));
+
+            var youPath = youTask.Result;
+            var santaPath = santaTask.Result;
 
             if (youPath == null || santaPath == null) { return 0; }
 
