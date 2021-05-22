@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using aoc.utils.geometry;
 
 namespace aoc.y2019.day10
@@ -11,6 +12,10 @@ namespace aoc.y2019.day10
         public Dictionary<float, List<Point>> nw { get; set; }
         public Dictionary<float, List<Point>> se { get; set; }
         public Dictionary<float, List<Point>> sw { get; set; }
+        public int Count
+        {
+            get => ne.Count + nw.Count + se.Count + sw.Count;
+        }
 
         public Groups() {
             ne = new Dictionary<float, List<Point>>();
@@ -35,6 +40,8 @@ namespace aoc.y2019.day10
             else if (q == QUADRANT.SOUTHWEST) addToList(sw, slope, pt);
         }
     }
+
+    record Visible(Point pt, Groups grps, int count);
 
     abstract class Solver : aoc.utils.ProblemSolver<int>
     {
@@ -76,6 +83,37 @@ namespace aoc.y2019.day10
             }
 
             return groups;
+        }
+
+        protected int countVisible(Point pt, List<Point> all) {
+            var slopes = getSlopes(pt, all);
+            var count = slopes.ne.Count + slopes.nw.Count + slopes.se.Count + slopes.sw.Count;
+
+            return count;
+        }
+
+        protected Visible getVisible(Point point, List<Point> all) {
+            var slopes = getSlopes(point, all);
+            return new Visible(point, slopes, slopes.Count);
+        }
+
+        protected Visible mostVisible(List<Point> asteroids) {
+            var tasks = new List<Task<Visible>>();
+
+            foreach (var asteroid in asteroids) {
+                tasks.Add(Task.Run<Visible>(() => getVisible(asteroid, asteroids)));
+            }
+
+            var most = new Visible(new Point(0, 0), new Groups(), 0);
+            foreach (var task in tasks) {
+                var vis = task.Result;
+
+                if (vis.count > most.count) {
+                    most = vis;
+                }
+            }
+
+            return most;
         }
     }
 }
