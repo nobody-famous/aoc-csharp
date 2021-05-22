@@ -2,13 +2,13 @@ using aoc.intcode;
 
 namespace aoc.y2019.day9
 {
-    class Part1 : Solver
+    class Part2 : Solver
     {
-        public Part1(string file, uint exp) : base(file, exp) { }
+        public Part2(string file, uint exp) : base(file, exp) { }
 
         protected override long doWork() {
             var prog = Parser.parseInput(inputFile);
-            var provider = new Provider(1);
+            var provider = new Provider(2);
             var mach = new Machine(prog, provider);
 
             runMachine(mach);
