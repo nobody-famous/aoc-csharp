@@ -4,23 +4,23 @@ namespace aoc.y2019.day5
 {
     class Provider : Listener
     {
-        int value;
+        long value;
 
-        int lastOutput = 0;
+        long lastOutput = 0;
 
         public Provider(int inputValue) {
             this.value = inputValue;
         }
 
-        public int input() { return value; }
-        public void output(int value) { lastOutput = value; }
+        public long input() { return value; }
+        public void output(long value) { lastOutput = value; }
 
-        public int getLastOutput() { return lastOutput; }
+        public long getLastOutput() { return lastOutput; }
     }
 
-    abstract class Solver : aoc.utils.ProblemSolver<int>
+    abstract class Solver : aoc.utils.ProblemSolver<long>
     {
-        public Solver(string file, int exp) : base(file, exp) { }
+        public Solver(string file, long exp) : base(file, exp) { }
 
         protected void runMachine(Machine mach) {
             while (!mach.isHalted()) {
@@ -28,7 +28,7 @@ namespace aoc.y2019.day5
             }
         }
 
-        protected int doWork(Provider provider) {
+        protected long doWork(Provider provider) {
             var prog = intcode.Parser.parseInput(inputFile);
             var mach = new Machine(prog, provider);
 

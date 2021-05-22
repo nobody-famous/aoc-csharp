@@ -6,37 +6,37 @@ namespace aoc.y2019.day7
     class Provider : Listener
     {
         protected int phase;
-        protected int? signal;
+        protected long? signal;
         protected bool sentPhase = false;
-        protected int? lastValue;
+        protected long? lastValue;
 
         public Provider(int phase) {
             this.phase = phase;
         }
 
-        public void setSignal(int value) { signal = value; }
+        public void setSignal(long value) { signal = value; }
 
-        public int input() {
+        public long input() {
             if (!sentPhase) {
                 sentPhase = true;
                 return phase;
             }
 
-            if (signal is int s) {
+            if (signal is long s) {
                 return s;
             } else {
                 throw new System.Exception("No signal for input");
             }
         }
 
-        public void output(int value) { lastValue = value; }
+        public void output(long value) { lastValue = value; }
 
         public bool hasValue() {
             return lastValue != null;
         }
 
-        public int getValue() {
-            if (lastValue is int v) {
+        public long getValue() {
+            if (lastValue is long v) {
                 lastValue = null;
 
                 return v;
@@ -48,23 +48,23 @@ namespace aoc.y2019.day7
 
     record Amp(Machine mach, Provider provider);
 
-    abstract class Solver : aoc.utils.ProblemSolver<int>
+    abstract class Solver : aoc.utils.ProblemSolver<long>
     {
-        protected int[] prog;
+        protected long[] prog;
 
         public Solver(string file, int exp) : base(file, exp) {
             prog = aoc.intcode.Parser.parseInput(inputFile);
         }
 
-        abstract protected int runChain(List<Amp> amps);
+        abstract protected long runChain(List<Amp> amps);
 
-        protected Amp makeAmp(int[] prog, int phase) {
+        protected Amp makeAmp(long[] prog, int phase) {
             var provider = new Provider(phase);
 
             return new Amp(new Machine(prog, provider), provider);
         }
 
-        protected int? runToOutput(Amp amp) {
+        protected long? runToOutput(Amp amp) {
             while (!amp.provider.hasValue()) {
                 amp.mach.step();
                 if (amp.mach.isHalted()) {
@@ -75,7 +75,7 @@ namespace aoc.y2019.day7
             return amp.provider.getValue();
         }
 
-        protected int runPerm(int[] prog, List<int> perm) {
+        protected long runPerm(long[] prog, List<int> perm) {
             var amps = new List<Amp>() {
                 makeAmp(prog, perm[0]),
                 makeAmp(prog, perm[1]),
@@ -122,9 +122,9 @@ namespace aoc.y2019.day7
             return perms;
         }
 
-        protected int doWork(List<int> phases) {
+        protected long doWork(List<int> phases) {
             var perms = getPerms(phases);
-            var max = int.MinValue;
+            var max = long.MinValue;
 
             foreach (var perm in perms) {
                 var signal = runPerm(prog, perm);

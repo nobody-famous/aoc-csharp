@@ -1,18 +1,21 @@
+using System.Collections.Generic;
+
 namespace aoc.intcode
 {
     interface Listener
     {
-        int input();
+        long input();
 
-        void output(int value);
+        void output(long value);
     }
 
     record Instr(int code, int modes);
 
     class Machine
     {
-        int[] prog;
-        int ip = 0;
+        long[] prog;
+        Dictionary<long, long> mem;
+        long ip = 0;
         bool halt = false;
         bool debug = false;
         Listener? listener = null;
@@ -27,28 +30,28 @@ namespace aoc.intcode
             public abstract void exec();
         }
 
-        private record Add(Machine parent, int arg1, int arg2, int addr) : Instruction(parent, 4)
+        private record Add(Machine parent, long arg1, long arg2, long addr) : Instruction(parent, 4)
         {
-            public override void exec() { parent.prog[addr] = arg1 + arg2; }
+            public override void exec() { parent[addr] = arg1 + arg2; }
         }
 
-        private record Mul(Machine parent, int arg1, int arg2, int addr) : Instruction(parent, 4)
+        private record Mul(Machine parent, long arg1, long arg2, long addr) : Instruction(parent, 4)
         {
-            public override void exec() { parent.prog[addr] = arg1 * arg2; }
+            public override void exec() { parent[addr] = arg1 * arg2; }
         }
 
-        private record Inp(Machine parent, int addr) : Instruction(parent, 2)
+        private record Inp(Machine parent, long addr) : Instruction(parent, 2)
         {
             public override void exec() {
                 if (parent.listener is not null) {
-                    parent.prog[addr] = parent.listener.input();
+                    parent[addr] = parent.listener.input();
                 } else {
                     throw new System.Exception("Input listener is null");
                 }
             }
         }
 
-        private record Out(Machine parent, int value) : Instruction(parent, 2)
+        private record Out(Machine parent, long value) : Instruction(parent, 2)
         {
             public override void exec() {
                 if (parent.listener is not null) {
@@ -59,7 +62,7 @@ namespace aoc.intcode
             }
         }
 
-        private record Jnz(Machine parent, int arg1, int arg2) : Instruction(parent, 0)
+        private record Jnz(Machine parent, long arg1, long arg2) : Instruction(parent, 0)
         {
             public override void exec() {
                 parent.ip = arg1 switch
@@ -70,7 +73,7 @@ namespace aoc.intcode
             }
         }
 
-        private record Jez(Machine parent, int arg1, int arg2) : Instruction(parent, 0)
+        private record Jez(Machine parent, long arg1, long arg2) : Instruction(parent, 0)
         {
             public override void exec() {
                 parent.ip = arg1 switch
@@ -81,14 +84,14 @@ namespace aoc.intcode
             }
         }
 
-        private record Lt(Machine parent, int arg1, int arg2, int addr) : Instruction(parent, 4)
+        private record Lt(Machine parent, long arg1, long arg2, long addr) : Instruction(parent, 4)
         {
-            public override void exec() { parent.prog[addr] = (arg1 < arg2) ? 1 : 0; }
+            public override void exec() { parent[addr] = (arg1 < arg2) ? 1 : 0; }
         }
 
-        private record Eql(Machine parent, int arg1, int arg2, int addr) : Instruction(parent, 4)
+        private record Eql(Machine parent, long arg1, long arg2, long addr) : Instruction(parent, 4)
         {
-            public override void exec() { parent.prog[addr] = (arg1 == arg2) ? 1 : 0; }
+            public override void exec() { parent[addr] = (arg1 == arg2) ? 1 : 0; }
         }
 
         private record Hlt(Machine parent) : Instruction(parent, 1)
@@ -96,29 +99,45 @@ namespace aoc.intcode
             public override void exec() { parent.halt = true; }
         }
 
-        public Machine(int[] prog, Listener? listener = null) {
-            this.prog = new int[prog.Length];
+        public Machine(long[] prog, Listener? listener = null) {
+            this.prog = new long[prog.Length];
+            this.mem = new Dictionary<long, long>();
             System.Array.Copy(prog, this.prog, prog.Length);
 
             this.listener = listener;
         }
 
-        public int this[int ndx]
+        public long this[long ndx]
         {
-            get { return prog[ndx]; }
-            set { prog[ndx] = value; }
+            get
+            {
+                if (ndx < prog.Length) {
+                    return prog[ndx];
+                }
+
+                return mem.ContainsKey(ndx) ? mem[ndx] : 0;
+            }
+
+            set
+            {
+                if (ndx < prog.Length) {
+                    prog[ndx] = value;
+                } else {
+                    mem[ndx] = value;
+                }
+            }
         }
 
         public void setDebug(bool debug) { this.debug = debug; }
 
         public bool isHalted() { return halt; }
 
-        private int getMode(int modes, int num) {
+        private long getMode(long modes, int num) {
             var mask = (int)System.Math.Pow(10, num - 1);
             return (modes / mask) % 10;
         }
 
-        private int getArg(int modes, int num) {
+        private long getArg(long modes, int num) {
             var mode = getMode(modes, num);
 
             switch (mode) {

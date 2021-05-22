@@ -10,8 +10,8 @@ namespace aoc.y2019.day2
 
         public Part2(string fileName, int exp) : base(fileName, exp) { }
 
-        private (int, int)? findVerb(int[] prog, int noun) {
-            var copy = new int[prog.Length];
+        private (int, int)? findVerb(long[] prog, int noun) {
+            var copy = new long[prog.Length];
 
             for (var verb = 0; verb < 100; verb += 1) {
                 System.Array.Copy(prog, copy, prog.Length);
@@ -25,7 +25,7 @@ namespace aoc.y2019.day2
             return null;
         }
 
-        private (int, int)? findValues(int[] prog) {
+        private (int, int)? findValues(long[] prog) {
             var tasks = new List<Task<(int, int)?>>();
 
             for (var noun = 0; noun < 100; noun += 1) {
@@ -45,9 +45,9 @@ namespace aoc.y2019.day2
             return (0, 0);
         }
 
-        protected override int doWork() {
+        protected override long doWork() {
             var prog = Parser.parseInput(inputFile);
-            var copy = new int[prog.Length];
+            var copy = new long[prog.Length];
 
             var vals = findValues(prog);
 

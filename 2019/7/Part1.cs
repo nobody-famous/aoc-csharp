@@ -6,24 +6,24 @@ namespace aoc.y2019.day7
     {
         public Part1(string file, int exp) : base(file, exp) { }
 
-        protected override int runChain(List<Amp> chain) {
-            int? signal = 0;
+        protected override long runChain(List<Amp> chain) {
+            long? signal = 0;
 
             foreach (var amp in chain) {
-                if (signal is int sig) {
+                if (signal is long sig) {
                     amp.provider.setSignal(sig);
                     signal = runToOutput(amp);
                 }
             }
 
-            if (signal is int s) {
+            if (signal is long s) {
                 return s;
             } else {
                 return 0;
             }
         }
 
-        protected override int doWork() {
+        protected override long doWork() {
             return base.doWork(new List<int>() { 0, 1, 2, 3, 4 });
         }
     }
