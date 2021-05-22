@@ -7,7 +7,7 @@ namespace aoc.y2019.day5
     {
         public Part1(string file, int exp) : base(file, exp) { }
 
-        protected override int doWork() {
+        protected override long doWork() {
             return base.doWork(new Provider(1));
         }
     }
