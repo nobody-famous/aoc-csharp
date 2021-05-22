@@ -2,15 +2,17 @@ using aoc.intcode;
 
 namespace aoc.y2019.day9
 {
-    class Part1 : aoc.utils.ProblemSolver<uint>
+    class Part1 : aoc.utils.ProblemSolver<long>
     {
         public Part1(string file, uint exp) : base(file, exp) { }
 
         private class Provider : Listener
         {
-            public long input() { System.Console.WriteLine("INPUT"); return 1; }
+            public long? lastValue { get; set; }
 
-            public void output(long value) { System.Console.WriteLine($"OUTPUT {value}"); }
+            public long input() { return 1; }
+
+            public void output(long value) { lastValue = value; }
         }
 
         private void runMachine(Machine mach) {
@@ -19,14 +21,18 @@ namespace aoc.y2019.day9
             }
         }
 
-        protected override uint doWork() {
+        protected override long doWork() {
             var prog = Parser.parseInput(inputFile);
-            var mach = new Machine(prog, new Provider());
+            var provider = new Provider();
+            var mach = new Machine(prog, provider);
 
-            mach.setDebug(true);
             runMachine(mach);
 
-            throw new System.NotImplementedException();
+            if (provider.lastValue is long v) {
+                return v;
+            } else {
+                return 0;
+            }
         }
     }
 }

@@ -15,6 +15,7 @@ namespace aoc.intcode
     {
         long[] prog;
         Dictionary<long, long> mem;
+        long relBase = 0;
         long ip = 0;
         bool halt = false;
         bool debug = false;
@@ -94,6 +95,11 @@ namespace aoc.intcode
             public override void exec() { parent[addr] = (arg1 == arg2) ? 1 : 0; }
         }
 
+        private record RBO(Machine parent, long arg1) : Instruction(parent, 2)
+        {
+            public override void exec() { parent.relBase += arg1; }
+        }
+
         private record Hlt(Machine parent) : Instruction(parent, 1)
         {
             public override void exec() { parent.halt = true; }
@@ -141,10 +147,18 @@ namespace aoc.intcode
             var mode = getMode(modes, num);
 
             switch (mode) {
-            case 0: return prog[prog[ip + num]];
-            case 1: return prog[ip + num];
+            case 0: return this[this[ip + num]];
+            case 1: return this[ip + num];
+            case 2: return this[relBase + this[ip + num]];
             default: throw new System.Exception($"Unhandled mode {mode}");
             }
+        }
+
+        private long writeAddr(long modes, int num) {
+            var mode = getMode(modes, num);
+            var addr = this[ip + num];
+
+            return (mode == 2) ? relBase + addr : addr;
         }
 
         private Instruction parseInstr() {
@@ -154,14 +168,15 @@ namespace aoc.intcode
 
             return code switch
             {
-                1 => new Add(this, getArg(modes, 1), getArg(modes, 2), prog[ip + 3]),
-                2 => new Mul(this, getArg(modes, 1), getArg(modes, 2), prog[ip + 3]),
-                3 => new Inp(this, prog[ip + 1]),
+                1 => new Add(this, getArg(modes, 1), getArg(modes, 2), writeAddr(modes, 3)),
+                2 => new Mul(this, getArg(modes, 1), getArg(modes, 2), writeAddr(modes, 3)),
+                3 => new Inp(this, writeAddr(modes, 1)),
                 4 => new Out(this, getArg(modes, 1)),
                 5 => new Jnz(this, getArg(modes, 1), getArg(modes, 2)),
                 6 => new Jez(this, getArg(modes, 1), getArg(modes, 2)),
-                7 => new Lt(this, getArg(modes, 1), getArg(modes, 2), prog[ip + 3]),
-                8 => new Eql(this, getArg(modes, 1), getArg(modes, 2), prog[ip + 3]),
+                7 => new Lt(this, getArg(modes, 1), getArg(modes, 2), writeAddr(modes, 3)),
+                8 => new Eql(this, getArg(modes, 1), getArg(modes, 2), writeAddr(modes, 3)),
+                9 => new RBO(this, getArg(modes, 1)),
                 99 => new Hlt(this),
                 _ => throw new System.Exception($"Unhandled op code {code}"),
             };
