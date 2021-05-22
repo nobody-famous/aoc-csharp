@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using aoc.utils;
 
@@ -25,13 +26,16 @@ namespace aoc_csharp
             new aoc.y2019.day8.Part2("input/2019/8/puzzle.txt", "PZEKB", 25, 6),
             new aoc.y2019.day9.Part1("input/2019/9/puzzle.txt", 2870072642),
             new aoc.y2019.day9.Part2("input/2019/9/puzzle.txt", 58534),
+            new aoc.y2019.day10.Part1("input/2019/10/puzzle.txt", 347),
           };
 
         static void runAll(List<Problem> toRun) {
-            var total = 0;
+            var total = 0L;
 
             foreach (var prob in toRun) {
-                var start = DateTime.Now.Millisecond;
+                var watch = new Stopwatch();
+
+                watch.Start();
 
                 try {
                     prob.run();
@@ -39,17 +43,17 @@ namespace aoc_csharp
                     Console.WriteLine($"{prob} FAILED: {ex.Message}");
                 }
 
-                var diff = DateTime.Now.Millisecond - start;
-                total += diff;
+                watch.Stop();
+                total += watch.ElapsedMilliseconds;
 
-                Console.WriteLine($"{prob} {diff} ms");
+                Console.WriteLine($"{prob} {watch.ElapsedMilliseconds} ms");
             }
 
             Console.WriteLine($"Total {total} ms");
         }
 
         static void Main(string[] args) {
-            var probs = new List<Problem>() { new aoc.y2019.day10.Part1("input/2019/10/sample.txt", 347) };
+            // var probs = new List<Problem>() { new aoc.y2019.day10.Part1("input/2019/10/puzzle.txt", 347) };
 
             runAll(probs);
         }
