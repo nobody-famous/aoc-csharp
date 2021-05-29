@@ -138,6 +138,8 @@ namespace aoc.intcode
 
         public bool isHalted() { return halt; }
 
+        public void stop() { halt = true; }
+
         private long getMode(long modes, int num) {
             var mask = (int)System.Math.Pow(10, num - 1);
             return (modes / mask) % 10;
