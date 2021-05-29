@@ -6,16 +6,16 @@ namespace aoc.y2019.day12
 {
     class Parser
     {
-        public static List<Point3d> parseInput(string fileName) {
+        public static List<Moon> parseInput(string fileName) {
             var lines = aoc.utils.Parser.readLines(fileName);
-            var points = new List<Point3d>();
+            var moons = new List<Moon>();
 
             foreach (var line in lines) {
                 var pt = parsePoint(line);
-                points.Add(pt);
+                moons.Add(new Moon(pt));
             }
 
-            return points;
+            return moons;
         }
 
         private static Point3d parsePoint(string line) {

@@ -5,9 +5,10 @@ namespace aoc.y2019.day12
         public Part1(string file, int exp) : base(file, exp) { }
 
         protected override int doWork() {
-            var points = Parser.parseInput(inputFile);
+            var moons = Parser.parseInput(inputFile);
 
-            System.Console.WriteLine($"points {points.Count}");
+            System.Console.WriteLine($"moons {moons.Count}");
+
             throw new System.NotImplementedException();
         }
     }
