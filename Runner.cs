@@ -56,7 +56,7 @@ namespace aoc_csharp
         }
 
         static void Main(string[] args) {
-            // var probs = new List<Problem>() { new aoc.y2019.day11.Part2("input/2019/11/puzzle.txt", "BFEAGHAF") };
+            var probs = new List<Problem>() { new aoc.y2019.day12.Part1("input/2019/12/sample.txt", 7077) };
 
             runAll(probs);
         }

@@ -4,6 +4,8 @@ namespace aoc.utils.geometry
 {
     record Point(int x, int y);
 
+    record Point3d(int x, int y, int z);
+
     record Line(Point start, Point end);
 
     class Funcs
