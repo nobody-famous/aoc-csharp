@@ -4,7 +4,6 @@ namespace aoc.utils.geometry
 {
     record Point(int x, int y);
 
-
     record Line(Point start, Point end);
 
     class Point3d
