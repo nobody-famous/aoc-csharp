@@ -57,7 +57,7 @@ namespace aoc.y2019.day11
         }
     }
 
-    class Robot : Listener
+    class Robot : IOHandler
     {
         private Machine mach;
         private Direction dir;
