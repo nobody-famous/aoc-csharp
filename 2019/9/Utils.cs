@@ -2,7 +2,7 @@ using aoc.intcode;
 
 namespace aoc.y2019.day9
 {
-    class Provider : Listener
+    class Provider : IOHandler
     {
         private long inputValue;
 

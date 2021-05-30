@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace aoc.intcode
 {
-    interface Listener
+    interface IOHandler
     {
         long input();
 
@@ -19,7 +19,7 @@ namespace aoc.intcode
         long ip = 0;
         bool halt = false;
         bool debug = false;
-        Listener? listener = null;
+        IOHandler? listener = null;
 
         private abstract record Instruction(Machine parent, int length)
         {
@@ -105,7 +105,7 @@ namespace aoc.intcode
             public override void exec() { parent.halt = true; }
         }
 
-        public Machine(long[] prog, Listener? listener = null) {
+        public Machine(long[] prog, IOHandler? listener = null) {
             this.prog = new long[prog.Length];
             this.mem = new Dictionary<long, long>();
             System.Array.Copy(prog, this.prog, prog.Length);

@@ -3,7 +3,7 @@ using aoc.intcode;
 
 namespace aoc.y2019.day7
 {
-    class Provider : Listener
+    class Provider : IOHandler
     {
         protected int phase;
         protected long? signal;
