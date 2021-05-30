@@ -30,31 +30,31 @@ namespace aoc.y2019.day12
 
         protected void updateX(Moon first, Moon second) {
             if (first.pos.x < second.pos.x) {
-                first.vel = new Point3d(first.vel.x + 1, first.vel.y, first.vel.z);
-                second.vel = new Point3d(second.vel.x - 1, second.vel.y, second.vel.z);
+                first.vel.x += 1;
+                second.vel.x -= 1;
             } else if (first.pos.x > second.pos.x) {
-                first.vel = new Point3d(first.vel.x - 1, first.vel.y, first.vel.z);
-                second.vel = new Point3d(second.vel.x + 1, second.vel.y, second.vel.z);
+                first.vel.x -= 1;
+                second.vel.x += 1;
             }
         }
 
         protected void updateY(Moon first, Moon second) {
             if (first.pos.y < second.pos.y) {
-                first.vel = new Point3d(first.vel.x, first.vel.y + 1, first.vel.z);
-                second.vel = new Point3d(second.vel.x, second.vel.y - 1, second.vel.z);
+                first.vel.y += 1;
+                second.vel.y -= 1;
             } else if (first.pos.y > second.pos.y) {
-                first.vel = new Point3d(first.vel.x, first.vel.y - 1, first.vel.z);
-                second.vel = new Point3d(second.vel.x, second.vel.y + 1, second.vel.z);
+                first.vel.y -= 1;
+                second.vel.y += 1;
             }
         }
 
         protected void updateZ(Moon first, Moon second) {
             if (first.pos.z < second.pos.z) {
-                first.vel = new Point3d(first.vel.x, first.vel.y, first.vel.z + 1);
-                second.vel = new Point3d(second.vel.x, second.vel.y, second.vel.z - 1);
+                first.vel.z += 1;
+                second.vel.z -= 1;
             } else if (first.pos.z > second.pos.z) {
-                first.vel = new Point3d(first.vel.x, first.vel.y, first.vel.z - 1);
-                second.vel = new Point3d(second.vel.x, second.vel.y, second.vel.z + 1);
+                first.vel.z -= 1;
+                second.vel.z += 1;
             }
         }
 
@@ -73,7 +73,9 @@ namespace aoc.y2019.day12
 
         protected void applyVelocity(List<Moon> moons) {
             foreach (var moon in moons) {
-                moon.pos = new Point3d(moon.pos.x + moon.vel.x, moon.pos.y + moon.vel.y, moon.pos.z + moon.vel.z);
+                moon.pos.x += moon.vel.x;
+                moon.pos.y += moon.vel.y;
+                moon.pos.z += moon.vel.z;
             }
         }
 

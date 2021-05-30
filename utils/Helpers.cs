@@ -50,5 +50,32 @@ namespace aoc.utils
 
             return pairs;
         }
+
+        private static (long, long) gcd_reduce(long big, long small) {
+            var result = big - small;
+
+            while (result > small) {
+                result -= small;
+            }
+
+            return (small, result);
+        }
+
+        public static long gcd(long n1, long n2) {
+            var big = n1 > n2 ? n1 : n2;
+            var small = n1 > n2 ? n2 : n1;
+            var result = small;
+
+            while (small > 0) {
+                result = small;
+                (big, small) = gcd_reduce(big, small);
+            }
+
+            return result;
+        }
+
+        public static long lcm(long n1, long n2) {
+            return (n1 * n2) / gcd(n1, n2);
+        }
     }
 }

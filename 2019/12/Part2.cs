@@ -1,52 +1,73 @@
 using System.Collections.Generic;
+using aoc.utils;
 
 namespace aoc.y2019.day12
 {
     class LoopDetector
     {
-        private List<List<Moon>> history;
-        public int? xLoop { get; set; }
-        public int? yLoop { get; set; }
-        public int? zLoop { get; set; }
+        private List<int[]> xHistory;
+        private List<int[]> yHistory;
+        private List<int[]> zHistory;
+        public int? xLoop = null;
+        public int? yLoop = null;
+        public int? zLoop = null;
 
         public LoopDetector() {
-            history = new List<List<Moon>>();
-        }
-
-        private List<Moon> copy(List<Moon> moons) {
-            var cp = new List<Moon>();
-
-            foreach (var moon in moons) {
-                cp.Add(new Moon(moon));
-            }
-
-            return cp;
+            xHistory = new List<int[]>();
+            yHistory = new List<int[]>();
+            zHistory = new List<int[]>();
         }
 
         public void Add(List<Moon> moons) {
-            history.Add(copy(moons));
-
-            if (history.Count < 2) { return; }
-
             if (xLoop is null) {
-                checkLoopX();
+                var xList = new List<int>();
+
+                xHistory.Add(new int[] {
+                    moons[0].pos.x,
+                    moons[1].pos.x,
+                    moons[2].pos.x,
+                    moons[3].pos.x,
+                });
+
+                if (xHistory.Count > 2) {
+                    xLoop = checkLoop(xHistory);
+                }
             }
 
             if (yLoop is null) {
-                checkLoopY();
+                var yList = new List<int>();
+
+                yHistory.Add(new int[] {
+                    moons[0].pos.y,
+                    moons[1].pos.y,
+                    moons[2].pos.y,
+                    moons[3].pos.y,
+                });
+
+                if (yHistory.Count > 2) {
+                    yLoop = checkLoop(yHistory);
+                }
             }
 
             if (zLoop is null) {
-                checkLoopZ();
+                var zList = new List<int>();
+
+                zHistory.Add(new int[] {
+                    moons[0].pos.z,
+                    moons[1].pos.z,
+                    moons[2].pos.z,
+                    moons[3].pos.z,
+                });
+
+                if (zHistory.Count > 2) {
+                    zLoop = checkLoop(zHistory);
+                }
             }
         }
 
-        private bool checkAllX(int first, int last) {
-            var entry1 = history[first];
-            var entry2 = history[last];
-
-            for (var ndx = 0; ndx < entry1.Count; ndx += 1) {
-                if (entry1[ndx].pos.x != entry2[ndx].pos.x) {
+        private bool checkAll(int[] first, int[] last) {
+            for (var ndx = 0; ndx < first.Length; ndx += 1) {
+                if (first[ndx] != last[ndx]) {
                     return false;
                 }
             }
@@ -54,78 +75,20 @@ namespace aoc.y2019.day12
             return true;
         }
 
-        private void checkLoopX() {
+        private int? checkLoop(List<int[]> history) {
             var first = 0;
             var last = history.Count - 1;
 
             while (first < last) {
-                if (!checkAllX(first, last)) {
-                    return;
+                if (!checkAll(history[first], history[last])) {
+                    return null;
                 }
 
                 first += 1;
                 last -= 1;
             }
 
-            xLoop = history.Count;
-        }
-
-        private bool checkAllY(int first, int last) {
-            var entry1 = history[first];
-            var entry2 = history[last];
-
-            for (var ndy = 0; ndy < entry1.Count; ndy += 1) {
-                if (entry1[ndy].pos.y != entry2[ndy].pos.y) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private void checkLoopY() {
-            var first = 0;
-            var last = history.Count - 1;
-
-            while (first < last) {
-                if (!checkAllY(first, last)) {
-                    return;
-                }
-
-                first += 1;
-                last -= 1;
-            }
-
-            yLoop = history.Count;
-        }
-
-        private bool checkAllZ(int first, int last) {
-            var entrz1 = history[first];
-            var entrz2 = history[last];
-
-            for (var ndz = 0; ndz < entrz1.Count; ndz += 1) {
-                if (entrz1[ndz].pos.z != entrz2[ndz].pos.z) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private void checkLoopZ() {
-            var first = 0;
-            var last = history.Count - 1;
-
-            while (first < last) {
-                if (!checkAllZ(first, last)) {
-                    return;
-                }
-
-                first += 1;
-                last -= 1;
-            }
-
-            zLoop = history.Count;
+            return history.Count;
         }
     }
 
@@ -138,7 +101,6 @@ namespace aoc.y2019.day12
 
             while (detector.xLoop is null || detector.yLoop is null || detector.zLoop is null) {
                 detector.Add(moons);
-
                 runLoop(moons);
             }
 
@@ -148,10 +110,9 @@ namespace aoc.y2019.day12
         protected override long doWork() {
             var moons = Parser.parseInput(inputFile);
             var (x, y, z) = getLoops(moons);
+            var lcm = Helpers.lcm(Helpers.lcm(x, y), z);
 
-            System.Console.WriteLine($"x {x} y {y} z {z}");
-
-            return 0;
+            return lcm;
         }
     }
 }
