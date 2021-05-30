@@ -30,6 +30,8 @@ namespace aoc_csharp
             new aoc.y2019.day10.Part2("input/2019/10/puzzle.txt", 829),
             new aoc.y2019.day11.Part1("input/2019/11/puzzle.txt", 1885),
             new aoc.y2019.day11.Part2("input/2019/11/puzzle.txt", "BFEAGHAF"),
+            new aoc.y2019.day12.Part1("input/2019/12/puzzle.txt", 7077),
+            new aoc.y2019.day12.Part2("input/2019/12/puzzle.txt", 402951477454512L),
             new aoc.y2019.day13.Part1("input/2019/13/puzzle.txt", 251),
             new aoc.y2019.day13.Part2("input/2019/13/puzzle.txt", 12779),
           };
