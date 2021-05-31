@@ -87,43 +87,8 @@ namespace aoc.y2019.day7
             return runChain(amps);
         }
 
-        protected void swap(List<int> nums, int ndx1, int ndx2) {
-            var tmp = nums[ndx1];
-            nums[ndx1] = nums[ndx2];
-            nums[ndx2] = tmp;
-        }
-
-        protected void getPerms(List<List<int>> perms, List<int> nums, int size) {
-            if (size == 1) {
-                var copy = new int[nums.Count];
-
-                nums.CopyTo(copy);
-                perms.Add(new List<int>(copy));
-
-                return;
-            }
-
-            for (var ndx = 0; ndx < size; ndx += 1) {
-                getPerms(perms, nums, size - 1);
-
-                if (size % 2 == 0) {
-                    swap(nums, ndx, size - 1);
-                } else {
-                    swap(nums, 0, size - 1);
-                }
-            }
-        }
-
-        protected List<List<int>> getPerms(List<int> nums) {
-            var perms = new List<List<int>>();
-
-            getPerms(perms, nums, nums.Count);
-
-            return perms;
-        }
-
         protected long doWork(List<int> phases) {
-            var perms = getPerms(phases);
+            var perms = aoc.utils.Helpers.getPerms(phases);
             var max = long.MinValue;
 
             foreach (var perm in perms) {
