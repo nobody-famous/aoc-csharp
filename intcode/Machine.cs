@@ -21,6 +21,22 @@ namespace aoc.intcode
         bool debug = false;
         IOHandler? listener = null;
 
+        public Machine(Machine copy, IOHandler listener) {
+            this.prog = new long[copy.prog.Length];
+            System.Array.Copy(copy.prog, this.prog, copy.prog.Length);
+
+            this.mem = new Dictionary<long, long>(copy.mem);
+            this.listener = listener;
+        }
+
+        public Machine(long[] prog, IOHandler? listener = null) {
+            this.prog = new long[prog.Length];
+            this.mem = new Dictionary<long, long>();
+            System.Array.Copy(prog, this.prog, prog.Length);
+
+            this.listener = listener;
+        }
+
         private abstract record Instruction(Machine parent, int length)
         {
             public void run() {
@@ -103,14 +119,6 @@ namespace aoc.intcode
         private record Hlt(Machine parent) : Instruction(parent, 1)
         {
             public override void exec() { parent.halt = true; }
-        }
-
-        public Machine(long[] prog, IOHandler? listener = null) {
-            this.prog = new long[prog.Length];
-            this.mem = new Dictionary<long, long>();
-            System.Array.Copy(prog, this.prog, prog.Length);
-
-            this.listener = listener;
         }
 
         public long this[long ndx]
