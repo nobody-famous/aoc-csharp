@@ -29,7 +29,7 @@ namespace aoc.y2019.day15
             }
         }
 
-        private List<Droid> getNeighbors(Droid droid) {
+        private List<Droid> visitNeighbors(Droid droid) {
             var neighbors = new List<Droid>();
 
             var north = new Point(droid.loc.x, droid.loc.y + 1);
@@ -42,21 +42,30 @@ namespace aoc.y2019.day15
             visit(neighbors, droid, east, Direction.East);
             visit(neighbors, droid, west, Direction.West);
 
-            System.Console.WriteLine("Neighbors");
-            foreach (var copy in neighbors) {
-                System.Console.WriteLine($"  {copy.loc}");
-            }
-
             return neighbors;
         }
 
         protected override int doWork() {
             var prog = aoc.intcode.Parser.parseInput(inputFile);
-            var droid = new Droid(prog);
+            var droids = new List<Droid>() { new Droid(prog) };
+            var nxtDroids = new List<Droid>();
+            var dist = 0;
 
-            getNeighbors(droid);
+            visited[droids[0].loc] = true;
 
-            throw new System.NotImplementedException();
+            while (oxygenSystem is null) {
+                foreach (var droid in droids) {
+                    var next = visitNeighbors(droid);
+                    nxtDroids.AddRange(next);
+                }
+
+                dist += 1;
+
+                droids = nxtDroids;
+                nxtDroids = new List<Droid>();
+            }
+
+            return dist;
         }
     }
 }

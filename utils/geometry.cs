@@ -17,6 +17,20 @@ namespace aoc.utils.geometry
         public override string ToString() {
             return $"({x},{y})";
         }
+
+        public override bool Equals(object? obj) {
+            if (obj?.GetType() != typeof(Point)) {
+                return false;
+            }
+
+            var other = obj as Point;
+
+            return x == other?.x && y == other?.y;
+        }
+
+        public override int GetHashCode() {
+            return (x * 100) + y;
+        }
     }
 
     class Point3d
