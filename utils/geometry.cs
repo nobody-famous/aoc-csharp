@@ -2,9 +2,36 @@ using System;
 
 namespace aoc.utils.geometry
 {
-    record Point(int x, int y);
-
     record Line(Point start, Point end);
+
+    class Point
+    {
+        public int x { get; set; }
+        public int y { get; set; }
+
+        public Point(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public override string ToString() {
+            return $"({x},{y})";
+        }
+
+        public override bool Equals(object? obj) {
+            if (obj?.GetType() != typeof(Point)) {
+                return false;
+            }
+
+            var other = obj as Point;
+
+            return x == other?.x && y == other?.y;
+        }
+
+        public override int GetHashCode() {
+            return (x * 100) + y;
+        }
+    }
 
     class Point3d
     {
@@ -16,6 +43,10 @@ namespace aoc.utils.geometry
             this.x = x;
             this.y = y;
             this.z = z;
+        }
+
+        public override string ToString() {
+            return $"({x},{y},{z})";
         }
     }
 
