@@ -24,50 +24,53 @@ namespace aoc.y2019.day15
             }
         }
 
-        private (Point, Point) getGridRange() {
-            var xMin = int.MaxValue;
-            var yMin = int.MaxValue;
-            var xMax = int.MinValue;
-            var yMax = int.MinValue;
-
-            foreach (var (point, status) in visited) {
-                if (point.x < xMin) {
-                    xMin = point.x;
-                }
-
-                if (point.x > xMax) {
-                    xMax = point.x;
-                }
-
-                if (point.y < yMin) {
-                    yMin = point.y;
-                }
-
-                if (point.y > yMax) {
-                    yMax = point.y;
-                }
+        private void visit(Dictionary<Point, bool> seen, List<Point> neighbors, Point point) {
+            if (seen.ContainsKey(point)) {
+                return;
             }
 
-            return (new Point(xMin, yMin), new Point(xMax, yMax));
+            if (visited.ContainsKey(point) && visited[point] == Status.Empty) {
+                neighbors.Add(point);
+            }
         }
 
-        private void printGrid(Point low, Point high) {
-            for (var y = low.y; y <= high.y; y += 1) {
-                for (var x = low.x; x <= high.x; x += 1) {
-                    var pt = new Point(x, y);
-                    var ch = visited.ContainsKey(pt) ? visited[new Point(x, y)] switch
-                    {
-                        Status.Wall => '#',
-                        Status.Empty => ' ',
-                        Status.System => '@',
-                        _ => '?',
-                    } : '#';
+        private List<Point> visitNeighbors(Dictionary<Point, bool> seen, Point point) {
+            var neighbors = new List<Point>();
 
-                    System.Console.Write(ch);
-                }
+            seen[point] = true;
 
-                System.Console.WriteLine();
+            visit(seen, neighbors, new Point(point.x, point.y + 1));
+            visit(seen, neighbors, new Point(point.x, point.y - 1));
+            visit(seen, neighbors, new Point(point.x + 1, point.y));
+            visit(seen, neighbors, new Point(point.x - 1, point.y));
+
+            return neighbors;
+        }
+
+        private List<Point> visitPoints(Dictionary<Point, bool> seen, List<Point> points) {
+            var nextPoints = new List<Point>();
+
+            foreach (var point in points) {
+                var toVisit = visitNeighbors(seen, point);
+                nextPoints.AddRange(toVisit);
             }
+
+            return nextPoints;
+        }
+
+        private int fillGrid(Point start) {
+            var count = 0;
+            var seen = new Dictionary<Point, bool>();
+            var points = visitPoints(seen, new List<Point>() { start });
+
+            seen[start] = true;
+
+            while (points.Count > 0) {
+                count += 1;
+                points = visitPoints(seen, points);
+            }
+
+            return count;
         }
 
         protected override int doWork() {
@@ -75,11 +78,7 @@ namespace aoc.y2019.day15
 
             buildGrid(prog);
 
-            var (low, high) = getGridRange();
-
-            printGrid(low, high);
-
-            return 0;
+            return fillGrid(oxygenSystem!);
         }
 
     }
