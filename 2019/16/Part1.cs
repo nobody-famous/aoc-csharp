@@ -5,31 +5,48 @@ namespace aoc.y2019.day16
     class Part1 : aoc.utils.ProblemSolver<long>
     {
         private int[] pattern = new int[] { 0, 1, 0, -1 };
+        private int[] sumTable = new int[] { 0 };
 
         public Part1(string file, long exp) : base(file, exp) { }
 
-        private int applyPattern(List<int> input, int count) {
+        private int[] buildSumTable(int[] input) {
+            var table = new int[input.Length];
+
+            table[0] = input[0];
+            for (var ndx = 1; ndx < input.Length; ndx += 1) {
+                table[ndx] = table[ndx - 1] + input[ndx];
+            }
+
+            return table;
+        }
+
+        private int applyPattern(int[] input, int count) {
             var patNdx = 1;
             var inpNdx = count - 1;
             var total = 0;
 
-            while (inpNdx < input.Count) {
-                var mult = pattern[patNdx];
-
-                for (var ndx = 0; inpNdx < input.Count && ndx < count; ndx += 1) {
-                    total += input[inpNdx] * mult;
-                    inpNdx += 1;
+            while (inpNdx < input.Length) {
+                if (pattern[patNdx] == 0) {
+                    inpNdx += count;
+                    patNdx = (patNdx + 1) % pattern.Length;
+                    continue;
                 }
 
+                var mult = pattern[patNdx];
+                var endNdx = System.Math.Min(inpNdx + count - 1, input.Length - 1);
+                var toSub = inpNdx > 0 ? sumTable[inpNdx - 1] : 0;
+
+                total += (sumTable[endNdx] - toSub) * mult;
+
                 inpNdx += count;
-                patNdx = (patNdx + 2) % pattern.Length;
+                patNdx = (patNdx + 1) % pattern.Length;
             }
 
             return System.Math.Abs(total) % 10;
         }
 
-        private void applyPattern(List<int> input) {
-            for (var ndx = 0; ndx < input.Count; ndx += 1) {
+        private void applyPattern(int[] input) {
+            for (var ndx = 0; ndx < input.Length; ndx += 1) {
                 input[ndx] = applyPattern(input, ndx + 1);
             }
         }
@@ -37,7 +54,9 @@ namespace aoc.y2019.day16
         protected override long doWork() {
             var input = Parser.parseInput(inputFile);
 
+
             for (var loop = 0; loop < 100; loop += 1) {
+                sumTable = buildSumTable(input);
                 applyPattern(input);
             }
 
