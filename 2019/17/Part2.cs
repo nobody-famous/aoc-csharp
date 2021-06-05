@@ -206,20 +206,63 @@ namespace aoc.y2019.day17
             }
         }
 
+        private void sendRoutines(Robot robot, Routines routines) {
+            var sentMain = false;
+            var sentA = false;
+            var sentB = false;
+            var sentC = false;
+
+            if (routines.main is null || routines.A is null || routines.B is null || routines.C is null) {
+                throw new System.Exception("Routines not set");
+            }
+
+            while (!sentMain || !sentA || !sentB || !sentC) {
+                var prompt = robot.getPrompt();
+
+                if (prompt == "Main:") {
+                    robot.send(routines.main);
+                    sentMain = true;
+                } else if (prompt == "Function A:") {
+                    robot.send(routines.A);
+                    sentA = true;
+                } else if (prompt == "Function B:") {
+                    robot.send(routines.B);
+                    sentB = true;
+                } else if (prompt == "Function C:") {
+                    robot.send(routines.C);
+                    sentC = true;
+                }
+            }
+        }
+
         protected override int doWork() {
             var prog = Parser.parseInput(inputFile);
+            prog[0] = 2;
+
             var robot = new Robot(prog);
 
-            robot.run();
+            robot.getScaffold();
 
             var steps = new PathBuilder(robot).build();
             var opts = getOptions(steps, 20);
-
-            // printOpts(opts);
             var routines = getRoutines(opts);
-            System.Console.WriteLine($"ROUTINES {routines}");
 
-            return 0;
+            if (routines is null) {
+                return 0;
+            }
+
+            sendRoutines(robot, routines);
+
+            var prompt = robot.getPrompt();
+            if ("Continuous video feed?".Equals(prompt)) {
+                robot.send("n");
+            } else {
+                throw new System.Exception($"NOT EXPECTED: {prompt}");
+            }
+
+            robot.getScaffold();
+
+            return (int)robot.getDust();
         }
     }
 }
