@@ -182,7 +182,7 @@ namespace aoc.y2019.day17
                 var str = strs[strsNdx];
 
                 if (!copy.assign(str)) {
-                    continue;;
+                    continue;
                 }
 
                 var nxt = getRoutines(opts, ndx + strsNdx + 1, copy);
