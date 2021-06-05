@@ -6,6 +6,53 @@ namespace aoc.y2019.day17
 {
     record PathStep(char turn, int dist);
 
+    class Routines
+    {
+        public string? A { get; set; }
+        public string? B { get; set; }
+        public string? C { get; set; }
+        public string? main { get; set; }
+
+        public Routines(Routines copy) {
+            this.A = copy.A;
+            this.B = copy.B;
+            this.C = copy.C;
+            this.main = copy.main;
+        }
+
+        public Routines(string? A, string? B, string? C, string? main) {
+            this.A = A;
+            this.B = B;
+            this.C = C;
+            this.main = main;
+        }
+
+        public bool assign(string str) {
+            if (A is null || str.Equals(A)) {
+                A = str;
+                main = main is null ? "A" : $"{main},A";
+
+                return true;
+            } else if (B is null || str.Equals(B)) {
+                B = str;
+                main = main is null ? "B" : $"{main},B";
+
+                return true;
+            } else if (C is null || str.Equals(C)) {
+                C = str;
+                main = main is null ? "C" : $"{main},C";
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public override string ToString() {
+            return $"[{A}, {B} ,{C} ,{main}]";
+        }
+    }
+
     class PathBuilder
     {
         private Dictionary<Point, long> scaffold;
@@ -101,20 +148,62 @@ namespace aoc.y2019.day17
                 opts.Add(new List<string>());
                 opts[ndx].Add(str);
 
-                for (var inv = ndx - 1; inv >= 0; inv -= 1) {
-                    var strs = opts[inv];
-                    var last = strs[strs.Count - 1];
-                    var newStr = $"{last},{str}";
+                for (var nxt = ndx + 1; nxt < steps.Count; nxt += 1) {
+                    var nxtStep = steps[nxt];
+                    var nxtStr = $"{str},{nxtStep.turn},{nxtStep.dist}";
 
-                    if (newStr.Length > maxLength) {
+                    if (nxtStr.Length > maxLength) {
                         break;
                     }
 
-                    strs.Add(newStr);
+                    opts[ndx].Add(nxtStr);
+                    str = nxtStr;
                 }
             }
 
             return opts;
+        }
+
+        private bool hasAllRoutines(Routines routines) {
+            return routines.A is not null
+                && routines.B is not null
+                && routines.C is not null
+                && routines.main is not null;
+        }
+
+        private Routines? getRoutines(List<List<string>> opts, int ndx, Routines cur) {
+            if (ndx >= opts.Count) {
+                return hasAllRoutines(cur) ? cur : null;
+            }
+
+            var strs = opts[ndx];
+            for (var strsNdx = strs.Count - 1; strsNdx >= 0; strsNdx -= 1) {
+                var copy = new Routines(cur);
+                var str = strs[strsNdx];
+
+                if (!copy.assign(str)) {
+                    continue;;
+                }
+
+                var nxt = getRoutines(opts, ndx + strsNdx + 1, copy);
+                if (nxt is Routines r) {
+                    return r;
+                }
+            }
+
+            return null;
+        }
+
+        private Routines? getRoutines(List<List<string>> opts) {
+            return getRoutines(opts, 0, new Routines(null, null, null, null));
+        }
+
+        private void printOpts(List<List<string>> opts) {
+            System.Console.WriteLine("OPTS");
+            for (var ndx = 0; ndx < opts.Count; ndx += 1) {
+                var strs = opts[ndx];
+                System.Console.WriteLine($"{ndx}: {string.Join(", ", strs)}");
+            }
         }
 
         protected override int doWork() {
@@ -125,6 +214,10 @@ namespace aoc.y2019.day17
 
             var steps = new PathBuilder(robot).build();
             var opts = getOptions(steps, 20);
+
+            // printOpts(opts);
+            var routines = getRoutines(opts);
+            System.Console.WriteLine($"ROUTINES {routines}");
 
             return 0;
         }
