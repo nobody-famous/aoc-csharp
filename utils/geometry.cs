@@ -45,6 +45,20 @@ namespace aoc.utils.geometry
             this.z = z;
         }
 
+        public override bool Equals(object? obj) {
+            if (obj?.GetType() != typeof(Point3d)) {
+                return false;
+            }
+
+            var other = obj as Point3d;
+
+            return x == other?.x && y == other?.y && z == other?.z;
+        }
+
+        public override int GetHashCode() {
+            return (x * 10000) + (y * 100) + z;
+        }
+
         public override string ToString() {
             return $"({x},{y},{z})";
         }

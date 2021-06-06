@@ -13,6 +13,7 @@ namespace aoc.y2019.day18
                     grid.spaces.Add(pt, new Space());
                 } else if (ch >= 'a' && ch <= 'z') {
                     grid.keys.Add(pt, new Key(ch));
+                    grid.allMasks |= grid.masks[ch];
                 } else if (ch >= 'A' && ch <= 'Z') {
                     grid.doors.Add(pt, new Door(ch));
                 } else if (ch == '@') {

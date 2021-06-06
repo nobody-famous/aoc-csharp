@@ -33,7 +33,10 @@ namespace aoc.y2019.day18
                 addToGraph(grid, entry.Key);
             }
 
-            throw new System.NotImplementedException();
+            var walker = new GraphWalker(grid, graph);
+            walker.walk();
+
+            return 0;
         }
     }
 }
