@@ -121,6 +121,7 @@ namespace aoc.y2019.day18
         private Dictionary<Point3d, int> graph3d = new Dictionary<Point3d, int>();
         private Dictionary<Point3d, int> toVisit = new Dictionary<Point3d, int>();
         private Dictionary<Point3d, bool> marked = new Dictionary<Point3d, bool>();
+        private int? pathDist;
 
         public GraphWalker(Grid grid, Dictionary<char, Dictionary<Point, GraphNode>> graph) {
             this.grid = grid;
@@ -154,9 +155,10 @@ namespace aoc.y2019.day18
             var ch = pt2d.Equals(grid.entrance) ? '@' : grid.keys[pt2d].ch;
             var candidates = graph[ch];
 
-            // System.Console.Write("TO VISIT: ");
-            // System.Console.Write(string.Join(", ", toVisit));
-            // System.Console.WriteLine($" CLOSEST {closest} {dist}");
+            if (closest.z == grid.allMasks) {
+                pathDist = dist;
+                return;
+            }
 
             toVisit.Remove(closest);
             marked[closest] = true;
@@ -173,12 +175,6 @@ namespace aoc.y2019.day18
                         continue;
                     }
 
-                    if (keyMask == grid.allMasks) {
-                        System.Console.WriteLine($"FOUND ALL KEYS {dist + node.dist}");
-                        // continue;
-                        System.Environment.Exit(0);
-                    }
-
                     var newDist = dist + node.dist;
                     var old = graph3d.ContainsKey(pt3d) ? graph3d[pt3d] : int.MaxValue;
                     if (newDist < old) {
@@ -190,9 +186,9 @@ namespace aoc.y2019.day18
             }
         }
 
-        public void walk() {
+        public int walk() {
             if (grid.entrance is null) {
-                return;
+                return 0;
             }
 
             var start = grid.entrance;
@@ -201,9 +197,111 @@ namespace aoc.y2019.day18
             graph3d[pt] = 0;
             toVisit[pt] = 0;
 
-            for (var loop = 0; loop < 10000; loop += 1) {
+            while (pathDist is null) {
                 doRound();
             }
+
+            return (int)pathDist;
+        }
+    }
+
+    class GridCrawler
+    {
+        private Grid grid;
+
+        class Crawler
+        {
+            private Grid grid;
+            private Dictionary<Point, bool> seen = new Dictionary<Point, bool>();
+            private List<Point> toVisit = new List<Point>();
+
+            public int keys { get; }
+
+            public Crawler(Grid grid, Point start) : this(grid, start, 0) { }
+
+            public Crawler(Grid grid, Point start, int keys) {
+                this.grid = grid;
+                this.keys = keys;
+
+                toVisit.Add(start);
+            }
+
+            private void visit(List<Crawler> newCrawlers, List<Point> toVisit, Point pt) {
+                if (seen.ContainsKey(pt)) {
+                    return;
+                }
+
+                if (grid.spaces.ContainsKey(pt)) {
+                    toVisit.Add(pt);
+                } else if (grid.keys.ContainsKey(pt)) {
+                    var key = grid.keys[pt];
+                    var mask = grid.masks[key.ch];
+
+                    newCrawlers.Add(new Crawler(grid, pt, keys | mask));
+                } else if (grid.doors.ContainsKey(pt)) {
+                    var door = grid.doors[pt];
+                    var mask = grid.masks[door.ch];
+
+                    if ((mask & keys) != 0) {
+                        toVisit.Add(pt);
+                    }
+                }
+            }
+
+            public List<Crawler> step() {
+                var newCrawlers = new List<Crawler>();
+                var newVisits = new List<Point>();
+
+                foreach (var pt in toVisit) {
+                    seen[pt] = true;
+
+                    visit(newCrawlers, newVisits, pt);
+                    visit(newCrawlers, newVisits, new Point(pt.x, pt.y - 1));
+                    visit(newCrawlers, newVisits, new Point(pt.x, pt.y + 1));
+                    visit(newCrawlers, newVisits, new Point(pt.x + 1, pt.y));
+                    visit(newCrawlers, newVisits, new Point(pt.x - 1, pt.y));
+                }
+
+                if (newVisits.Count > 0) {
+                    newCrawlers.Add(this);
+                }
+
+                toVisit = newVisits;
+
+                return newCrawlers;
+            }
+        }
+
+        public GridCrawler(Grid grid) {
+            this.grid = grid;
+        }
+
+        public int crawl() {
+            if (grid.entrance is null) {
+                throw new System.Exception("No entrance");
+            }
+
+            var crawlers = new List<Crawler>() { new Crawler(grid, grid.entrance) };
+            var dist = 0;
+            var pathDist = 0;
+
+            while (pathDist == 0) {
+                var next = new List<Crawler>();
+
+                foreach (var crawler in crawlers) {
+                    if (crawler.keys == grid.allMasks) {
+                        pathDist = dist;
+                    }
+                    var newCrawlers = crawler.step();
+                    next.AddRange(newCrawlers);
+                }
+
+                dist += 1;
+                crawlers = next;
+            }
+
+            return pathDist;
         }
     }
 }
+

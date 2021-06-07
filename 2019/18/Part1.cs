@@ -24,19 +24,20 @@ namespace aoc.y2019.day18
 
         protected override int doWork() {
             var grid = Parser.parseInput(inputFile);
+
             if (grid.entrance is null) {
                 throw new System.Exception("No entrance");
             }
-
             addToGraph(grid, grid.entrance);
             foreach (var entry in grid.keys) {
                 addToGraph(grid, entry.Key);
             }
 
             var walker = new GraphWalker(grid, graph);
-            walker.walk();
+            return walker.walk();
 
-            return 0;
+            // var crawler = new GridCrawler(grid);
+            // return crawler.crawl();
         }
     }
 }
