@@ -33,6 +33,9 @@ namespace aoc.y2019.day18
                 addToGraph(grid, entry.Key);
             }
 
+            // System.Console.WriteLine(string.Join(", ", graph['b']));
+            // return 0;
+
             var walker = new GraphWalker(grid, graph);
             return walker.walk();
 

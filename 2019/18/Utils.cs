@@ -33,7 +33,7 @@ namespace aoc.y2019.day18
         }
     }
 
-    record GraphNode(Point pt, int dist, int needKeys, GridItem item);
+    record GraphNode(Point pt, int dist, int needKeys, int hasKeys, GridItem item);
 
     class GraphBuilder
     {
@@ -48,7 +48,7 @@ namespace aoc.y2019.day18
             this.start = start;
         }
 
-        private void visitPoint(List<GraphNode> toVisit, Point pt, int needKeys) {
+        private void visitPoint(List<GraphNode> toVisit, Point pt, GraphNode node) {
             if (seen.ContainsKey(pt)) {
                 return;
             }
@@ -56,32 +56,32 @@ namespace aoc.y2019.day18
             seen[pt] = true;
 
             if (grid.spaces.ContainsKey(pt)) {
-                toVisit.Add(new GraphNode(pt, dist, needKeys, grid.spaces[pt]));
+                toVisit.Add(new GraphNode(pt, dist, node.needKeys, node.hasKeys, grid.spaces[pt]));
             } else if (grid.keys.ContainsKey(pt)) {
                 var key = grid.keys[pt];
                 var mask = grid.masks[key.ch];
-                var node = new GraphNode(pt, dist, needKeys, key);
+                var newNode = new GraphNode(pt, dist, node.needKeys, node.hasKeys | mask, key);
 
-                if ((mask & needKeys) == 0) {
-                    nodes[pt] = node;
+                if ((mask & node.needKeys) == 0) {
+                    nodes[pt] = newNode;
                 }
 
-                toVisit.Add(node);
+                toVisit.Add(newNode);
             } else if (grid.doors.ContainsKey(pt)) {
                 var door = grid.doors[pt];
                 var mask = grid.masks[door.ch];
 
-                toVisit.Add(new GraphNode(pt, dist, needKeys | mask, door));
+                toVisit.Add(new GraphNode(pt, dist, node.needKeys | mask, node.hasKeys, door));
             }
         }
 
         private List<GraphNode> visit(GraphNode node) {
             var points = new List<GraphNode>();
 
-            visitPoint(points, new Point(node.pt.x, node.pt.y - 1), node.needKeys);
-            visitPoint(points, new Point(node.pt.x, node.pt.y + 1), node.needKeys);
-            visitPoint(points, new Point(node.pt.x + 1, node.pt.y), node.needKeys);
-            visitPoint(points, new Point(node.pt.x - 1, node.pt.y), node.needKeys);
+            visitPoint(points, new Point(node.pt.x, node.pt.y - 1), node);
+            visitPoint(points, new Point(node.pt.x, node.pt.y + 1), node);
+            visitPoint(points, new Point(node.pt.x + 1, node.pt.y), node);
+            visitPoint(points, new Point(node.pt.x - 1, node.pt.y), node);
 
             return points;
         }
@@ -93,7 +93,7 @@ namespace aoc.y2019.day18
                 ? grid.masks[grid.keys[start].ch]
                 : 0;
 
-            var toVisit = new List<GraphNode>() { new GraphNode(start, 0, needKeys, new Space()) };
+            var toVisit = new List<GraphNode>() { new GraphNode(start, 0, needKeys, 0, new Space()) };
 
             while (toVisit.Count > 0) {
                 var neighbors = new List<GraphNode>();
@@ -132,6 +132,7 @@ namespace aoc.y2019.day18
             Point3d? closest = null;
             var dist = int.MaxValue;
 
+            System.Console.WriteLine($"findClosest {string.Join(", ", toVisit)}");
             foreach (var pt in toVisit) {
                 var ptDist = graph3d[pt.Key];
 
@@ -167,15 +168,17 @@ namespace aoc.y2019.day18
             foreach (var entry in candidates) {
                 var node = entry.Value;
                 var nodeKey = grid.keys[node.pt];
-                var nodeMask = grid.masks[nodeKey.ch];
+                // var nodeMask = grid.masks[nodeKey.ch];
 
-                if ((nodeMask & closest.z) != 0) {
+                // if ((nodeMask & closest.z) != 0) {
+                if ((node.hasKeys & closest.z) != 0) {
                     continue;
                 }
 
                 if ((closest.z == 0 && node.needKeys == 0) || (closest.z & node.needKeys) == node.needKeys) {
                     var keyItem = (Key)node.item;
-                    var keyMask = closest.z | grid.masks[keyItem.ch];
+                    // var keyMask = closest.z | grid.masks[keyItem.ch];
+                    var keyMask = closest.z | node.hasKeys;
                     var pt3d = new Point3d(node.pt.x, node.pt.y, keyMask);
 
                     if (marked.ContainsKey(pt3d)) {
@@ -188,6 +191,7 @@ namespace aoc.y2019.day18
                         graph3d[pt3d] = newDist;
                     }
 
+                    System.Console.WriteLine($"  ADD {pt3d}");
                     toVisit[pt3d] = graph3d[pt3d];
                 }
             }
