@@ -155,7 +155,7 @@ namespace aoc.y2019.day18
             var ch = pt2d.Equals(grid.entrance) ? '@' : grid.keys[pt2d].ch;
             var candidates = graph[ch];
 
-            // System.Console.WriteLine($"VISIT {string.Join(", ", toVisit)}");
+            System.Console.WriteLine($"VISIT {string.Join(", ", toVisit)}");
             if (closest.z == grid.allMasks) {
                 pathDist = dist;
                 return;
