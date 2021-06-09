@@ -55,7 +55,7 @@ namespace aoc_csharp
                 try {
                     prob.run();
                 } catch (System.Exception ex) {
-                    Console.WriteLine($"{prob} FAILED: {ex.Message}");
+                    Console.WriteLine($"{prob} FAILED: {ex.Message} {ex.StackTrace}");
                 }
 
                 watch.Stop();

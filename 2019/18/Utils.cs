@@ -235,7 +235,7 @@ namespace aoc.y2019.day18
         }
 
         private List<GraphNode> getCandidates(Dictionary<Point, GraphNode> nodes, int foundKeys) {
-            var candidates = new List<GraphNode>();
+            var candidates = new Dictionary<char, GraphNode>();
             var added = new Dictionary<char, int>();
 
             foreach (var entry in nodes) {
@@ -253,17 +253,25 @@ namespace aoc.y2019.day18
                         var ch = maskEntry.Key;
                         var mask = maskEntry.Value;
 
-                        if ((mask & node.hasKeys) != 0 && ch >= 'a' && ch <= 'z') {
+                        if (added.ContainsKey(ch) && (mask & node.hasKeys) != 0 && ch >= 'a' && ch <= 'z') {
                             added[ch] += 1;
                         }
                     }
 
-                    candidates.Add(node);
+                    candidates[keyItem.ch] = node;
                 }
             }
 
-            System.Console.WriteLine(string.Join(",", added));
-            return candidates;
+            foreach (var entry in added) {
+                var ch = entry.Key;
+                var count = entry.Value;
+
+                if (count > 1) {
+                    candidates.Remove(ch);
+                }
+            }
+
+            return new List<GraphNode>(candidates.Values);
         }
 
         private void walk(Dictionary<Point, GraphNode> nodes, int dist, int keys, List<char> path) {
@@ -289,7 +297,6 @@ namespace aoc.y2019.day18
             }
 
             var candidates = getCandidates(nodes, keys);
-            System.Environment.Exit(0);
 
             foreach (var candidate in candidates) {
                 var key = grid.keys[candidate.pt];
@@ -303,7 +310,6 @@ namespace aoc.y2019.day18
 
                 seen[keys][candidate.pt] = newDist;
 
-                // System.Console.WriteLine($"  {key.ch} {keys}");
                 var newPath = new List<char>(path);
                 newPath.Add(key.ch);
 
