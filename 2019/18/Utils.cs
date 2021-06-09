@@ -215,7 +215,7 @@ namespace aoc.y2019.day18
     {
         private Grid grid;
         private Dictionary<char, Dictionary<Point, GraphNode>> graph;
-        private Dictionary<int, int> seen = new Dictionary<int, int>();
+        private Dictionary<int, Dictionary<Point, int>> seen = new Dictionary<int, Dictionary<Point, int>>();
         private int pathDist = int.MaxValue;
 
         public DfsWalker(Grid grid, Dictionary<char, Dictionary<Point, GraphNode>> graph) {
@@ -236,28 +236,41 @@ namespace aoc.y2019.day18
 
         private List<GraphNode> getCandidates(Dictionary<Point, GraphNode> nodes, int foundKeys) {
             var candidates = new List<GraphNode>();
+            var added = new Dictionary<char, int>();
 
             foreach (var entry in nodes) {
                 var pt = entry.Key;
                 var node = entry.Value;
 
                 if (!alreadyHaveKey(pt, foundKeys) && haveNeededKey(node.needKeys, foundKeys)) {
+                    var keyItem = (Key)node.item;
+
+                    if (!added.ContainsKey(keyItem.ch)) {
+                        added[keyItem.ch] = 0;
+                    }
+
+                    foreach (var maskEntry in grid.masks) {
+                        var ch = maskEntry.Key;
+                        var mask = maskEntry.Value;
+
+                        if ((mask & node.hasKeys) != 0 && ch >= 'a' && ch <= 'z') {
+                            added[ch] += 1;
+                        }
+                    }
+
                     candidates.Add(node);
                 }
             }
 
+            System.Console.WriteLine(string.Join(",", added));
             return candidates;
         }
 
-        private void walk(Dictionary<Point, GraphNode> nodes, int dist, int keys) {
+        private void walk(Dictionary<Point, GraphNode> nodes, int dist, int keys, List<char> path) {
             // System.Console.WriteLine($"walk {dist} {keys}");
 
-            if (seen.ContainsKey(keys) && seen[keys] < dist) {
-                // System.Console.WriteLine($"  SEEN {keys} {grid.allMasks} {seen[keys]} < {dist}");
-                dist = seen[keys];
-            }
+            System.Console.WriteLine($"{pathDist} {dist} {string.Join(",", path)}");
 
-            // if (dist >= pathDist || (seen.ContainsKey(keys) && seen[keys] < dist)) {
             if (dist >= pathDist) {
                 return;
             }
@@ -267,11 +280,16 @@ namespace aoc.y2019.day18
                     pathDist = dist;
                 }
 
+                System.Console.WriteLine($"  {dist} {string.Join(",", path)}");
                 return;
             }
 
-            seen[keys] = dist;
+            if (!seen.ContainsKey(keys)) {
+                seen[keys] = new Dictionary<Point, int>();
+            }
+
             var candidates = getCandidates(nodes, keys);
+            System.Environment.Exit(0);
 
             foreach (var candidate in candidates) {
                 var key = grid.keys[candidate.pt];
@@ -279,8 +297,17 @@ namespace aoc.y2019.day18
                 var newKeys = keys | candidate.hasKeys;
                 var newDist = dist + candidate.dist;
 
+                if (seen[keys].ContainsKey(candidate.pt) && seen[keys][candidate.pt] < newDist) {
+                    continue;
+                }
+
+                seen[keys][candidate.pt] = newDist;
+
                 // System.Console.WriteLine($"  {key.ch} {keys}");
-                walk(nextNodes, newDist, keys | candidate.hasKeys);
+                var newPath = new List<char>(path);
+                newPath.Add(key.ch);
+
+                walk(nextNodes, newDist, keys | candidate.hasKeys, newPath);
             }
         }
 
@@ -289,7 +316,7 @@ namespace aoc.y2019.day18
                 return 0;
             }
 
-            walk(graph['@'], 0, 0);
+            walk(graph['@'], 0, 0, new List<char>() { '@' });
 
             return pathDist;
         }
