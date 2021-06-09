@@ -33,7 +33,8 @@ namespace aoc.y2019.day18
                 addToGraph(grid, entry.Key);
             }
 
-            var walker = new GraphWalker(grid, graph);
+            var walker = new DfsWalker(grid, graph);
+            // var walker = new GraphWalker(grid, graph);
             return walker.walk();
         }
     }

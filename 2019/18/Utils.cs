@@ -210,5 +210,89 @@ namespace aoc.y2019.day18
             return (int)pathDist;
         }
     }
+
+    class DfsWalker
+    {
+        private Grid grid;
+        private Dictionary<char, Dictionary<Point, GraphNode>> graph;
+        private Dictionary<int, int> seen = new Dictionary<int, int>();
+        private int pathDist = int.MaxValue;
+
+        public DfsWalker(Grid grid, Dictionary<char, Dictionary<Point, GraphNode>> graph) {
+            this.grid = grid;
+            this.graph = graph;
+        }
+
+        private bool haveNeededKey(int needKeys, int foundKeys) {
+            return (needKeys & foundKeys) == needKeys;
+        }
+
+        private bool alreadyHaveKey(Point point, int foundKeys) {
+            var key = grid.keys[point];
+            var mask = grid.masks[key.ch];
+
+            return (mask & foundKeys) == mask;
+        }
+
+        private List<GraphNode> getCandidates(Dictionary<Point, GraphNode> nodes, int foundKeys) {
+            var candidates = new List<GraphNode>();
+
+            foreach (var entry in nodes) {
+                var pt = entry.Key;
+                var node = entry.Value;
+
+                if (!alreadyHaveKey(pt, foundKeys) && haveNeededKey(node.needKeys, foundKeys)) {
+                    candidates.Add(node);
+                }
+            }
+
+            return candidates;
+        }
+
+        private void walk(Dictionary<Point, GraphNode> nodes, int dist, int keys) {
+            // System.Console.WriteLine($"walk {dist} {keys}");
+
+            if (seen.ContainsKey(keys) && seen[keys] < dist) {
+                // System.Console.WriteLine($"  SEEN {keys} {grid.allMasks} {seen[keys]} < {dist}");
+                dist = seen[keys];
+            }
+
+            // if (dist >= pathDist || (seen.ContainsKey(keys) && seen[keys] < dist)) {
+            if (dist >= pathDist) {
+                return;
+            }
+
+            if (keys == grid.allMasks) {
+                if (dist < pathDist) {
+                    pathDist = dist;
+                }
+
+                return;
+            }
+
+            seen[keys] = dist;
+            var candidates = getCandidates(nodes, keys);
+
+            foreach (var candidate in candidates) {
+                var key = grid.keys[candidate.pt];
+                var nextNodes = graph[key.ch];
+                var newKeys = keys | candidate.hasKeys;
+                var newDist = dist + candidate.dist;
+
+                // System.Console.WriteLine($"  {key.ch} {keys}");
+                walk(nextNodes, newDist, keys | candidate.hasKeys);
+            }
+        }
+
+        public int walk() {
+            if (grid.entrance is null) {
+                return 0;
+            }
+
+            walk(graph['@'], 0, 0);
+
+            return pathDist;
+        }
+    }
 }
 
