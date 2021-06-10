@@ -17,7 +17,8 @@ namespace aoc.y2019.day18
         }
 
         protected override int doWork() {
-            var grid = Parser.parseInput(inputFile);
+            var parser = new Parser();
+            var grid = parser.parseInput(inputFile);
 
             foreach (var entry in grid.entrances) {
                 addToGraph(grid, entry.Key);
