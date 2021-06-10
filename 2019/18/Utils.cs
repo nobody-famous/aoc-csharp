@@ -112,110 +112,11 @@ namespace aoc.y2019.day18
         }
     }
 
-    class GraphWalker
-    {
-        record Node(Point3d pt, int dist);
-
-        private Grid grid;
-        private Dictionary<char, Dictionary<Point, GraphNode>> graph;
-        private Dictionary<Point3d, int> graph3d = new Dictionary<Point3d, int>();
-        private Dictionary<Point3d, int> toVisit = new Dictionary<Point3d, int>();
-        private Dictionary<Point3d, bool> marked = new Dictionary<Point3d, bool>();
-        private int? pathDist;
-
-        public GraphWalker(Grid grid, Dictionary<char, Dictionary<Point, GraphNode>> graph) {
-            this.grid = grid;
-            this.graph = graph;
-        }
-
-        private Point3d findClosest() {
-            Point3d? closest = null;
-            var dist = int.MaxValue;
-
-            foreach (var pt in toVisit) {
-                var ptDist = graph3d[pt.Key];
-
-                if (ptDist < dist) {
-                    dist = ptDist;
-                    closest = pt.Key;
-                }
-            }
-
-            if (closest is null) {
-                throw new System.Exception("Could not find closest");
-            }
-
-            return closest;
-        }
-
-        private void doRound() {
-            var closest = findClosest();
-            var dist = graph3d[closest];
-            var pt2d = new Point(closest.x, closest.y);
-            var ch = pt2d.Equals(grid.entrance) ? '@' : grid.keys[pt2d].ch;
-            var candidates = graph[ch];
-
-            if (closest.z == grid.allMasks) {
-                pathDist = dist;
-                return;
-            }
-
-            toVisit.Remove(closest);
-            marked[closest] = true;
-
-            foreach (var entry in candidates) {
-                var node = entry.Value;
-                var nodeKey = grid.keys[node.pt];
-                var nodeMask = grid.masks[nodeKey.ch];
-
-                if ((nodeMask & closest.z) != 0) {
-                    continue;
-                }
-
-                if ((closest.z == 0 && node.needKeys == 0) || (closest.z & node.needKeys) == node.needKeys) {
-                    var keyItem = (Key)node.item;
-                    var keyMask = closest.z | node.hasKeys;
-                    var pt3d = new Point3d(node.pt.x, node.pt.y, keyMask);
-
-                    if (marked.ContainsKey(pt3d)) {
-                        continue;
-                    }
-
-                    var newDist = dist + node.dist;
-                    var oldDist = graph3d.ContainsKey(pt3d) ? graph3d[pt3d] : int.MaxValue;
-                    if (newDist < oldDist) {
-                        graph3d[pt3d] = newDist;
-                    }
-
-                    toVisit[pt3d] = graph3d[pt3d];
-                }
-            }
-        }
-
-        public int walk() {
-            if (grid.entrance is null) {
-                return 0;
-            }
-
-            var start = grid.entrance;
-            var pt = new Point3d(start.x, start.y, 0);
-
-            graph3d[pt] = 0;
-            toVisit[pt] = 0;
-
-            while (pathDist is null) {
-                doRound();
-            }
-
-            return (int)pathDist;
-        }
-    }
-
     class DfsWalker
     {
         private Grid grid;
         private Dictionary<char, Dictionary<Point, GraphNode>> graph;
-        private Dictionary<int, Dictionary<Point, int>> seen = new Dictionary<int, Dictionary<Point, int>>();
+        private Dictionary<char, Dictionary<int, int>> below = new Dictionary<char, Dictionary<int, int>>();
         private int pathDist = int.MaxValue;
 
         public DfsWalker(Grid grid, Dictionary<char, Dictionary<Point, GraphNode>> graph) {
@@ -274,47 +175,43 @@ namespace aoc.y2019.day18
             return new List<GraphNode>(candidates.Values);
         }
 
-        private void walk(Dictionary<Point, GraphNode> nodes, int dist, int keys, List<char> path) {
-            // System.Console.WriteLine($"walk {dist} {keys}");
-
-            System.Console.WriteLine($"{pathDist} {dist} {string.Join(",", path)}");
-
-            if (dist >= pathDist) {
-                return;
-            }
-
+        private int walk(Dictionary<Point, GraphNode> nodes, int keys) {
             if (keys == grid.allMasks) {
-                if (dist < pathDist) {
-                    pathDist = dist;
-                }
-
-                System.Console.WriteLine($"  {dist} {string.Join(",", path)}");
-                return;
-            }
-
-            if (!seen.ContainsKey(keys)) {
-                seen[keys] = new Dictionary<Point, int>();
+                return 0;
             }
 
             var candidates = getCandidates(nodes, keys);
+            var minDist = int.MaxValue;
 
             foreach (var candidate in candidates) {
                 var key = grid.keys[candidate.pt];
                 var nextNodes = graph[key.ch];
                 var newKeys = keys | candidate.hasKeys;
-                var newDist = dist + candidate.dist;
 
-                if (seen[keys].ContainsKey(candidate.pt) && seen[keys][candidate.pt] < newDist) {
+                if (!below.ContainsKey(key.ch)) {
+                    below[key.ch] = new Dictionary<int, int>();
+                }
+
+                if (below[key.ch].ContainsKey(keys)) {
+                    var dist = below[key.ch][keys] + candidate.dist;
+
+                    if (dist < minDist) {
+                        minDist = dist;
+                    }
+
                     continue;
                 }
 
-                seen[keys][candidate.pt] = newDist;
+                var belowDist = walk(nextNodes, keys | candidate.hasKeys);
+                below[key.ch][keys] = belowDist;
 
-                var newPath = new List<char>(path);
-                newPath.Add(key.ch);
-
-                walk(nextNodes, newDist, keys | candidate.hasKeys, newPath);
+                var newDist = belowDist + candidate.dist;
+                if (newDist < minDist) {
+                    minDist = newDist;
+                }
             }
+
+            return minDist;
         }
 
         public int walk() {
@@ -322,7 +219,7 @@ namespace aoc.y2019.day18
                 return 0;
             }
 
-            walk(graph['@'], 0, 0, new List<char>() { '@' });
+            pathDist = walk(graph['@'], 0);
 
             return pathDist;
         }
