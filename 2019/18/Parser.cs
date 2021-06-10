@@ -10,15 +10,15 @@ namespace aoc.y2019.day18
                 var pt = new Point(col, row);
 
                 if (ch == '.') {
-                    grid.spaces.Add(pt, new Space());
+                    grid.spaces[pt] = new Space();
+                } else if (ch == '@') {
+                    grid.entrances[pt] = new Enter();
+                    grid.spaces[pt] = new Space();
                 } else if (ch >= 'a' && ch <= 'z') {
-                    grid.keys.Add(pt, new Key(ch));
+                    grid.keys[pt] = new Key(ch);
                     grid.allMasks |= grid.masks[ch];
                 } else if (ch >= 'A' && ch <= 'Z') {
-                    grid.doors.Add(pt, new Door(ch));
-                } else if (ch == '@') {
-                    grid.entrance = pt;
-                    grid.spaces.Add(pt, new Space());
+                    grid.doors[pt] = new Door(ch);
                 }
             }
         }

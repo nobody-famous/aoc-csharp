@@ -6,12 +6,13 @@ namespace aoc.y2019.day18
     interface GridItem { }
 
     record Space : GridItem;
+    record Enter : GridItem;
     record Key(char ch) : GridItem;
     record Door(char ch) : GridItem;
 
     class Grid
     {
-        public Point? entrance { get; set; } = null;
+        public Dictionary<Point, Enter> entrances { get; } = new Dictionary<Point, Enter>();
         public Dictionary<Point, Key> keys { get; } = new Dictionary<Point, Key>();
         public Dictionary<Point, Door> doors { get; } = new Dictionary<Point, Door>();
         public Dictionary<Point, Space> spaces { get; } = new Dictionary<Point, Space>();
@@ -115,11 +116,11 @@ namespace aoc.y2019.day18
     class DfsWalker
     {
         private Grid grid;
-        private Dictionary<char, Dictionary<Point, GraphNode>> graph;
+        private Dictionary<Point, Dictionary<Point, GraphNode>> graph;
         private Dictionary<char, Dictionary<int, int>> below = new Dictionary<char, Dictionary<int, int>>();
         private int pathDist = int.MaxValue;
 
-        public DfsWalker(Grid grid, Dictionary<char, Dictionary<Point, GraphNode>> graph) {
+        public DfsWalker(Grid grid, Dictionary<Point, Dictionary<Point, GraphNode>> graph) {
             this.grid = grid;
             this.graph = graph;
         }
@@ -185,7 +186,7 @@ namespace aoc.y2019.day18
 
             foreach (var candidate in candidates) {
                 var key = grid.keys[candidate.pt];
-                var nextNodes = graph[key.ch];
+                var nextNodes = graph[candidate.pt];
                 var newKeys = keys | candidate.hasKeys;
 
                 if (!below.ContainsKey(key.ch)) {
@@ -215,11 +216,9 @@ namespace aoc.y2019.day18
         }
 
         public int walk() {
-            if (grid.entrance is null) {
-                return 0;
+            foreach (var entry in grid.entrances) {
+                pathDist = walk(graph[entry.Key], 0);
             }
-
-            pathDist = walk(graph['@'], 0);
 
             return pathDist;
         }

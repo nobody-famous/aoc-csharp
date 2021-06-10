@@ -5,7 +5,7 @@ namespace aoc.y2019.day18
 {
     class Part1 : aoc.utils.ProblemSolver<int>
     {
-        private Dictionary<char, Dictionary<Point, GraphNode>> graph = new Dictionary<char, Dictionary<Point, GraphNode>>();
+        private Dictionary<Point, Dictionary<Point, GraphNode>> graph = new Dictionary<Point, Dictionary<Point, GraphNode>>();
 
         public Part1(string file, int exp) : base(file, exp) { }
 
@@ -13,23 +13,16 @@ namespace aoc.y2019.day18
             var builder = new GraphBuilder(grid, pt);
             var nodes = builder.build();
 
-            if (pt.Equals(grid.entrance)) {
-                graph['@'] = nodes;
-            } else {
-                var key = grid.keys[pt];
-
-                graph[key.ch] = nodes;
-            }
+            graph[pt] = nodes;
         }
 
         protected override int doWork() {
             var grid = Parser.parseInput(inputFile);
 
-            if (grid.entrance is null) {
-                throw new System.Exception("No entrance");
+            foreach (var entry in grid.entrances) {
+                addToGraph(grid, entry.Key);
             }
 
-            addToGraph(grid, grid.entrance);
             foreach (var entry in grid.keys) {
                 addToGraph(grid, entry.Key);
             }
