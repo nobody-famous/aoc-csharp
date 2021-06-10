@@ -176,12 +176,13 @@ namespace aoc.y2019.day18
             return new List<GraphNode>(candidates.Values);
         }
 
-        private int walk(Dictionary<Point, GraphNode> nodes, int keys) {
+        private int walk(List<GraphNode> candidates, int keys) {
+            System.Console.WriteLine(string.Join(", ", candidates));
+
             if (keys == grid.allMasks) {
                 return 0;
             }
 
-            var candidates = getCandidates(nodes, keys);
             var minDist = int.MaxValue;
 
             foreach (var candidate in candidates) {
@@ -203,7 +204,10 @@ namespace aoc.y2019.day18
                     continue;
                 }
 
-                var belowDist = walk(nextNodes, keys | candidate.hasKeys);
+                System.Console.WriteLine(string.Join(", ", nextNodes));
+                var nextCandidates = getCandidates(nextNodes, newKeys);
+
+                var belowDist = walk(nextCandidates, newKeys);
                 below[key.ch][keys] = belowDist;
 
                 var newDist = belowDist + candidate.dist;
@@ -216,9 +220,20 @@ namespace aoc.y2019.day18
         }
 
         public int walk() {
+            var allCandidates = new List<GraphNode>();
+
             foreach (var entry in grid.entrances) {
-                pathDist = walk(graph[entry.Key], 0);
+                var nodes = graph[entry.Key];
+                var candidates = getCandidates(nodes, 0);
+
+                allCandidates.AddRange(candidates);
             }
+
+            pathDist = walk(allCandidates, 0);
+
+            // foreach (var entry in grid.entrances) {
+            //     pathDist = walk(graph[entry.Key], 0);
+            // }
 
             return pathDist;
         }
