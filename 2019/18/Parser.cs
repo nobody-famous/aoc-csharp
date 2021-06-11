@@ -23,9 +23,10 @@ namespace aoc.y2019.day18
                 } else if (ch == '@') {
                     grid.entrances[pt] = new Enter();
                     grid.spaces[pt] = new Space();
-                    addMask(grid, pt);
+                    // addMask(grid, pt);
                 } else if (ch >= 'a' && ch <= 'z') {
                     grid.keys[pt] = new Key(ch);
+                    grid.allMasks |= grid.masks[ch];
                     addMask(grid, pt);
                 } else if (ch >= 'A' && ch <= 'Z') {
                     grid.doors[pt] = new Door(ch);
