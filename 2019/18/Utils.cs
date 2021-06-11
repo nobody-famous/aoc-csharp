@@ -121,7 +121,7 @@ namespace aoc.y2019.day18
     {
         private Grid grid;
         private Dictionary<Point, Dictionary<Point, GraphNode>> graph;
-        private Dictionary<Point, Dictionary<int, int>> below = new Dictionary<Point, Dictionary<int, int>>();
+        private Dictionary<char, Dictionary<int, int>> below = new Dictionary<char, Dictionary<int, int>>();
         private int pathDist = int.MaxValue;
 
         public DfsWalker(Grid grid, Dictionary<Point, Dictionary<Point, GraphNode>> graph) {
@@ -188,15 +188,16 @@ namespace aoc.y2019.day18
             var minDist = int.MaxValue;
 
             foreach (var candidate in candidates) {
+                var key = grid.keys[candidate.pt];
                 var nextNodes = graph[candidate.pt];
                 var newKeys = keys | candidate.hasKeys;
 
-                if (!below.ContainsKey(candidate.pt)) {
-                    below[candidate.pt] = new Dictionary<int, int>();
+                if (!below.ContainsKey(key.ch)) {
+                    below[key.ch] = new Dictionary<int, int>();
                 }
 
-                if (below[candidate.pt].ContainsKey(keys)) {
-                    var dist = below[candidate.pt][keys] + candidate.dist;
+                if (below[key.ch].ContainsKey(keys)) {
+                    var dist = below[key.ch][keys] + candidate.dist;
 
                     if (dist < minDist) {
                         minDist = dist;
@@ -208,7 +209,7 @@ namespace aoc.y2019.day18
                 var nextCandidates = getCandidates(nextNodes, newKeys);
 
                 var belowDist = walk(nextCandidates, newKeys);
-                below[candidate.pt][keys] = belowDist;
+                below[key.ch][keys] = belowDist;
 
                 var newDist = belowDist + candidate.dist;
                 if (newDist < minDist) {
@@ -220,30 +221,18 @@ namespace aoc.y2019.day18
         }
 
         public int walk() {
-            var candidates = new List<GraphNode>();
+            var allCandidates = new List<GraphNode>();
+            var haveKeys = 0;
 
             foreach (var entry in grid.entrances) {
-                var pt = entry.Key;
-                var item = entry.Value;
-                var keys = grid.ptMasks[pt];
+                var nodes = graph[entry.Key];
+                var candidates = getCandidates(nodes, 0);
+                haveKeys |= grid.ptMasks[entry.Key];
 
-                candidates.Add(new GraphNode(pt, 0, 0, keys, item));
+                allCandidates.AddRange(candidates);
             }
 
-            pathDist = walk(candidates, 0);
-
-            // var allCandidates = new List<GraphNode>();
-            // var haveKeys = 0;
-
-            // foreach (var entry in grid.entrances) {
-            //     var nodes = graph[entry.Key];
-            //     var candidates = getCandidates(nodes, 0);
-            //     haveKeys |= grid.ptMasks[entry.Key];
-
-            //     allCandidates.AddRange(candidates);
-            // }
-
-            // pathDist = walk(allCandidates, haveKeys);
+            pathDist = walk(allCandidates, haveKeys);
 
             return pathDist;
         }
