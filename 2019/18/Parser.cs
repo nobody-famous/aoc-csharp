@@ -10,6 +10,7 @@ namespace aoc.y2019.day18
             grid.ptMasks[pt] = mask;
             grid.allPtMasks |= mask;
 
+            // System.Console.WriteLine($"MASK {pt} {mask}");
             mask <<= 1;
         }
 
