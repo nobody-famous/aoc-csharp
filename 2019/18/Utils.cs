@@ -17,9 +17,7 @@ namespace aoc.y2019.day18
         public Dictionary<Point, Door> doors { get; } = new Dictionary<Point, Door>();
         public Dictionary<Point, Space> spaces { get; } = new Dictionary<Point, Space>();
         public Dictionary<char, int> masks = new Dictionary<char, int>();
-        public Dictionary<Point, int> ptMasks = new Dictionary<Point, int>();
         public int allMasks = 0;
-        public int allPtMasks = 0;
 
         public Grid() {
             var mask = 1;
@@ -51,21 +49,6 @@ namespace aoc.y2019.day18
             this.start = start;
         }
 
-        private int keyMaskForDoor(char ch) {
-            var target = System.Char.ToLower(ch);
-
-            foreach (var entry in grid.keys) {
-                var keyPt = entry.Key;
-                var key = entry.Value;
-
-                if (key.ch == target) {
-                    return grid.ptMasks[keyPt];
-                }
-            }
-
-            return 0;
-        }
-
         private void visitPoint(List<GraphNode> toVisit, Point pt, GraphNode node) {
             if (seen.ContainsKey(pt)) {
                 return;
@@ -78,8 +61,6 @@ namespace aoc.y2019.day18
             } else if (grid.keys.ContainsKey(pt)) {
                 var key = grid.keys[pt];
                 var mask = grid.masks[key.ch];
-                var ptMask = grid.ptMasks[pt];
-
                 var newNode = new GraphNode(pt, dist, node.needKeys, node.hasKeys | mask, key);
 
                 if ((mask & node.needKeys) == 0) {
@@ -90,7 +71,6 @@ namespace aoc.y2019.day18
             } else if (grid.doors.ContainsKey(pt)) {
                 var door = grid.doors[pt];
                 var mask = grid.masks[door.ch];
-                var keyMask = keyMaskForDoor(door.ch);
 
                 toVisit.Add(new GraphNode(pt, dist, node.needKeys | mask, node.hasKeys, door));
             }
@@ -197,8 +177,9 @@ namespace aoc.y2019.day18
         }
 
         private int walk(List<GraphNode> candidates, int keys) {
-            // if (keys == grid.allMasks) {
-            if (keys == grid.allPtMasks) {
+            System.Console.WriteLine(string.Join(", ", candidates));
+
+            if (keys == grid.allMasks) {
                 return 0;
             }
 
@@ -223,6 +204,7 @@ namespace aoc.y2019.day18
                     continue;
                 }
 
+                System.Console.WriteLine(string.Join(", ", nextNodes));
                 var nextCandidates = getCandidates(nextNodes, newKeys);
 
                 var belowDist = walk(nextCandidates, newKeys);
