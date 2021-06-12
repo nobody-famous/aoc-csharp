@@ -34,12 +34,13 @@ namespace aoc.y2019.day18
         }
     }
 
-    record GraphNode(Point pt, int dist, int needKeys, int hasKeys, GridItem item);
+    record GraphNode(Point pt, Point enter, int dist, int needKeys, int hasKeys, GridItem item);
 
     class GraphBuilder
     {
         private Grid grid;
         private Point start;
+        private Point enter = new Point(0, 0);
         private int dist = 0;
         private Dictionary<Point, GraphNode> nodes = new Dictionary<Point, GraphNode>();
         private Dictionary<Point, bool> seen = new Dictionary<Point, bool>();
@@ -56,12 +57,16 @@ namespace aoc.y2019.day18
 
             seen[pt] = true;
 
+            if (grid.entrances.ContainsKey(pt)) {
+                enter = pt;
+            }
+
             if (grid.spaces.ContainsKey(pt)) {
-                toVisit.Add(new GraphNode(pt, dist, node.needKeys, node.hasKeys, grid.spaces[pt]));
+                toVisit.Add(new GraphNode(pt, enter, dist, node.needKeys, node.hasKeys, grid.spaces[pt]));
             } else if (grid.keys.ContainsKey(pt)) {
                 var key = grid.keys[pt];
                 var mask = grid.masks[key.ch];
-                var newNode = new GraphNode(pt, dist, node.needKeys, node.hasKeys | mask, key);
+                var newNode = new GraphNode(pt, enter, dist, node.needKeys, node.hasKeys | mask, key);
 
                 if ((mask & node.needKeys) == 0) {
                     nodes[pt] = newNode;
@@ -72,7 +77,7 @@ namespace aoc.y2019.day18
                 var door = grid.doors[pt];
                 var mask = grid.masks[door.ch];
 
-                toVisit.Add(new GraphNode(pt, dist, node.needKeys | mask, node.hasKeys, door));
+                toVisit.Add(new GraphNode(pt, enter, dist, node.needKeys | mask, node.hasKeys, door));
             }
         }
 
@@ -94,7 +99,11 @@ namespace aoc.y2019.day18
                 ? grid.masks[grid.keys[start].ch]
                 : 0;
 
-            var toVisit = new List<GraphNode>() { new GraphNode(start, 0, needKeys, 0, new Space()) };
+            if (grid.entrances.ContainsKey(start)) {
+                enter = start;
+            }
+
+            var toVisit = new List<GraphNode>() { new GraphNode(start, enter, 0, needKeys, 0, new Space()) };
 
             while (toVisit.Count > 0) {
                 var neighbors = new List<GraphNode>();
@@ -109,7 +118,14 @@ namespace aoc.y2019.day18
                 toVisit = neighbors;
             }
 
-            return nodes;
+            var newNodes = new Dictionary<Point, GraphNode>();
+            foreach (var entry in nodes) {
+                var node = entry.Value;
+
+                newNodes[entry.Key] = new GraphNode(node.pt, enter, node.dist, node.needKeys, node.hasKeys, node.item);
+            }
+
+            return newNodes;
         }
     }
 
@@ -177,7 +193,7 @@ namespace aoc.y2019.day18
         }
 
         private int walk(List<GraphNode> candidates, int keys) {
-            System.Console.WriteLine(string.Join(", ", candidates));
+            // System.Console.WriteLine(string.Join(", ", candidates));
 
             if (keys == grid.allMasks) {
                 return 0;
@@ -204,7 +220,7 @@ namespace aoc.y2019.day18
                     continue;
                 }
 
-                System.Console.WriteLine(string.Join(", ", nextNodes));
+                // System.Console.WriteLine(string.Join(", ", nextNodes));
                 var nextCandidates = getCandidates(nextNodes, newKeys);
 
                 var belowDist = walk(nextCandidates, newKeys);
