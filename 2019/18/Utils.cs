@@ -34,14 +34,13 @@ namespace aoc.y2019.day18
         }
     }
 
-    record GraphNode(Point pt, Point enter, int dist, int needKeys, int hasKeys, GridItem item);
+    record GraphNode(Point pt, int dist, int needKeys, int hasKeys, GridItem item);
 
     class GraphBuilder
     {
         private Grid grid;
         private Point start;
         private int dist = 0;
-        private Point enter = new Point(0, 0);
         private Dictionary<Point, GraphNode> nodes = new Dictionary<Point, GraphNode>();
         private Dictionary<Point, bool> seen = new Dictionary<Point, bool>();
 
@@ -58,11 +57,11 @@ namespace aoc.y2019.day18
             seen[pt] = true;
 
             if (grid.spaces.ContainsKey(pt)) {
-                toVisit.Add(new GraphNode(pt, enter, dist, node.needKeys, node.hasKeys, grid.spaces[pt]));
+                toVisit.Add(new GraphNode(pt, dist, node.needKeys, node.hasKeys, grid.spaces[pt]));
             } else if (grid.keys.ContainsKey(pt)) {
                 var key = grid.keys[pt];
                 var mask = grid.masks[key.ch];
-                var newNode = new GraphNode(pt, enter, dist, node.needKeys, node.hasKeys | mask, key);
+                var newNode = new GraphNode(pt, dist, node.needKeys, node.hasKeys | mask, key);
 
                 if ((mask & node.needKeys) == 0) {
                     nodes[pt] = newNode;
@@ -73,7 +72,7 @@ namespace aoc.y2019.day18
                 var door = grid.doors[pt];
                 var mask = grid.masks[door.ch];
 
-                toVisit.Add(new GraphNode(pt, enter, dist, node.needKeys | mask, node.hasKeys, door));
+                toVisit.Add(new GraphNode(pt, dist, node.needKeys | mask, node.hasKeys, door));
             }
         }
 
@@ -95,11 +94,7 @@ namespace aoc.y2019.day18
                 ? grid.masks[grid.keys[start].ch]
                 : 0;
 
-            if (grid.entrances.ContainsKey(start)) {
-                enter = start;
-            }
-
-            var toVisit = new List<GraphNode>() { new GraphNode(start, enter, 0, needKeys, 0, new Space()) };
+            var toVisit = new List<GraphNode>() { new GraphNode(start, 0, needKeys, 0, new Space()) };
 
             while (toVisit.Count > 0) {
                 var neighbors = new List<GraphNode>();
@@ -181,21 +176,14 @@ namespace aoc.y2019.day18
             return new List<GraphNode>(candidates.Values);
         }
 
-        private int walk(Dictionary<Point, GraphNode> robots, int keys) {
-            // System.Console.WriteLine($"{keys} {string.Join(", ", robots)}");
+        private int walk(List<GraphNode> candidates, int keys) {
+            System.Console.WriteLine(string.Join(", ", candidates));
 
             if (keys == grid.allMasks) {
                 return 0;
             }
 
             var minDist = int.MaxValue;
-            var candidates = new List<GraphNode>();
-
-            foreach (var robot in robots) {
-                var nodes = graph[robot.Key];
-
-                candidates.AddRange(getCandidates(nodes, keys));
-            }
 
             foreach (var candidate in candidates) {
                 var key = grid.keys[candidate.pt];
@@ -216,11 +204,10 @@ namespace aoc.y2019.day18
                     continue;
                 }
 
-                // System.Console.WriteLine($"  {newKeys} {candidate}");
-                // var nextCandidates = getCandidates(nextNodes, newKeys);
-                robots[candidate.enter] = candidate;
+                System.Console.WriteLine(string.Join(", ", nextNodes));
+                var nextCandidates = getCandidates(nextNodes, newKeys);
 
-                var belowDist = walk(robots, newKeys);
+                var belowDist = walk(nextCandidates, newKeys);
                 below[key.ch][keys] = belowDist;
 
                 var newDist = belowDist + candidate.dist;
@@ -233,18 +220,16 @@ namespace aoc.y2019.day18
         }
 
         public int walk() {
-            var robots = new Dictionary<Point, GraphNode>();
-            // var allCandidates = new List<GraphNode>();
+            var allCandidates = new List<GraphNode>();
 
             foreach (var entry in grid.entrances) {
-                robots[entry.Key] = new GraphNode(entry.Key, entry.Key, 0, 0, 0, new Enter());
-                // var nodes = graph[entry.Key];
-                // var candidates = getCandidates(nodes, 0);
+                var nodes = graph[entry.Key];
+                var candidates = getCandidates(nodes, 0);
 
-                // allCandidates.AddRange(candidates);
+                allCandidates.AddRange(candidates);
             }
 
-            pathDist = walk(robots, 0);
+            pathDist = walk(allCandidates, 0);
 
             // foreach (var entry in grid.entrances) {
             //     pathDist = walk(graph[entry.Key], 0);
