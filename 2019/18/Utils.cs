@@ -192,11 +192,17 @@ namespace aoc.y2019.day18
             return new List<GraphNode>(candidates.Values);
         }
 
-        private int walk(List<GraphNode> candidates, int keys) {
-            // System.Console.WriteLine(string.Join(", ", candidates));
-
+        private int walk(Dictionary<Point, GraphNode> robots, int keys, List<char> path) {
             if (keys == grid.allMasks) {
                 return 0;
+            }
+
+            var candidates = new List<GraphNode>();
+            foreach (var entry in robots) {
+                var robotPt = entry.Value.pt;
+                var nodes = getCandidates(graph[robotPt], keys);
+
+                candidates.AddRange(nodes);
             }
 
             var minDist = int.MaxValue;
@@ -220,10 +226,14 @@ namespace aoc.y2019.day18
                     continue;
                 }
 
-                // System.Console.WriteLine(string.Join(", ", nextNodes));
-                var nextCandidates = getCandidates(nextNodes, newKeys);
+                var newRobots = new Dictionary<Point, GraphNode>(robots);
+                newRobots[candidate.enter] = candidate;
 
-                var belowDist = walk(nextCandidates, newKeys);
+                var newPath = new List<char>(path);
+                var keyItem = (Key)candidate.item;
+                newPath.Add(keyItem.ch);
+
+                var belowDist = walk(newRobots, newKeys, newPath);
                 below[key.ch][keys] = belowDist;
 
                 var newDist = belowDist + candidate.dist;
@@ -236,20 +246,14 @@ namespace aoc.y2019.day18
         }
 
         public int walk() {
-            var allCandidates = new List<GraphNode>();
+            var robots = new Dictionary<Point, GraphNode>();
 
             foreach (var entry in grid.entrances) {
-                var nodes = graph[entry.Key];
-                var candidates = getCandidates(nodes, 0);
-
-                allCandidates.AddRange(candidates);
+                robots[entry.Key] = new GraphNode(entry.Key, entry.Key, 0, 0, 0, new Enter());
             }
 
-            pathDist = walk(allCandidates, 0);
-
-            // foreach (var entry in grid.entrances) {
-            //     pathDist = walk(graph[entry.Key], 0);
-            // }
+            var path = new List<char>();
+            pathDist = walk(robots, 0, path);
 
             return pathDist;
         }
