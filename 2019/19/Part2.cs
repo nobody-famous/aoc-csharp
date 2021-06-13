@@ -16,6 +16,16 @@ namespace aoc.y2019.day19
 
             var pt = findFirst();
 
+            // drawBeam(100);
+
+            var count = countRow(pt);
+            while (count > 0 && count < 100) {
+                pt.x += 1;
+                pt.y += 1;
+                count = countRow(pt);
+                // System.Console.WriteLine($"{pt} {count}");
+            }
+
             throw new System.NotImplementedException();
         }
     }

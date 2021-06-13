@@ -50,12 +50,10 @@ namespace aoc.y2019.day19
             var count = 0;
             var walker = new Point(pt);
 
-            while (checkPoint(walker)) {
-                count += 1;
-                walker.x -= 1;
+            while (isValid(walker) && !checkPoint(walker)) {
+                walker.x += 1;
             }
 
-            walker = new Point(pt.x + 1, pt.y);
             while (checkPoint(walker)) {
                 count += 1;
                 walker.x += 1;
