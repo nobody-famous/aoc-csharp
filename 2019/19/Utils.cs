@@ -6,9 +6,10 @@ namespace aoc.y2019.day19
     abstract class Solver : aoc.utils.ProblemSolver<int>
     {
         protected long[] prog = new long[0];
-        protected int size = 50;
 
         public Solver(string file, int exp) : base(file, exp) { }
+
+        abstract protected bool isValid(Point pt);
 
         protected bool checkPoint(Point pt) {
             if (!isValid(pt)) {
@@ -19,10 +20,6 @@ namespace aoc.y2019.day19
             var status = drone.sendCoords(pt.x, pt.y);
 
             return status == 1;
-        }
-
-        protected bool isValid(Point pt) {
-            return pt.x < size && pt.y < size;
         }
 
         protected Point findFirst() {
@@ -42,7 +39,7 @@ namespace aoc.y2019.day19
                 y += 1;
                 if (y >= (2 * x)) {
                     y = 0;
-                    x = (x + 1) % size;
+                    x += 1;
                 }
             }
 
@@ -67,9 +64,9 @@ namespace aoc.y2019.day19
             return count;
         }
 
-        protected void drawBeam() {
-            for (var x = 0; x < size; x += 1) {
-                for (var y = 0; y < size; y += 1) {
+        protected void drawBeam(int size) {
+            for (var y = 0; y < size; y += 1) {
+                for (var x = 0; x < size; x += 1) {
                     System.Console.Write(checkPoint(new Point(x, y)) ? '#' : '.');
                 }
                 System.Console.WriteLine();
