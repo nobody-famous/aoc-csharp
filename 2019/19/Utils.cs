@@ -22,6 +22,16 @@ namespace aoc.y2019.day19
             return status == 1;
         }
 
+        protected Point findBeamStart(int y) {
+            var start = new Point(y, y);
+
+            while (!checkPoint(start)) {
+                start.x += 1;
+            }
+
+            return start;
+        }
+
         protected Point findFirst() {
             Point? first = null;
             var x = 1;

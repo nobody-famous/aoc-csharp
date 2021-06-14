@@ -11,22 +11,47 @@ namespace aoc.y2019.day19
             return true;
         }
 
+        private int getUpperBound(int jump) {
+            var bound = jump;
+
+            while (!fits(bound, jump)) {
+                bound *= 2;
+            }
+
+            return bound;
+        }
+
+        private bool fits(int y, int size) {
+            var start = findBeamStart(y);
+            var pt = new Point(start.x + size - 1, start.y - (size - 1));
+            var ok = checkPoint(pt);
+
+            return checkPoint(pt);
+        }
+
         protected override int doWork() {
             prog = Parser.parseInput(inputFile);
 
-            var pt = findFirst();
+            var size = 100;
 
-            // drawBeam(100);
+            var high = size * size;
+            var mid = high / 2;
+            var low = 0;
 
-            var count = countRow(pt);
-            while (count > 0 && count < 100) {
-                pt.x += 1;
-                pt.y += 1;
-                count = countRow(pt);
-                // System.Console.WriteLine($"{pt} {count}");
+            while (low < mid) {
+                if (fits(mid, size)) {
+                    high = mid;
+                } else {
+                    low = mid;
+                }
+
+                mid = low + ((high - low) / 2);
             }
 
-            throw new System.NotImplementedException();
+            var start = findBeamStart(high);
+            var pt = new Point(start.x, start.y - (size - 1));
+
+            return (pt.x * 10000) + pt.y;
         }
     }
 }
