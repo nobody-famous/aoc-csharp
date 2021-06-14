@@ -9,6 +9,11 @@ namespace aoc.utils.geometry
         public int x { get; set; }
         public int y { get; set; }
 
+        public Point(Point copy) {
+            this.x = copy.x;
+            this.y = copy.y;
+        }
+
         public Point(int x, int y) {
             this.x = x;
             this.y = y;
