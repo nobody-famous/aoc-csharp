@@ -10,6 +10,8 @@ namespace aoc.y2019.day20
     record Maze : GridItem;
     record Jump(Point pt) : GridItem;
 
+    record Grid(GridItem[,] items, Dictionary<string, List<Point>> jumps);
+
     class Parser
     {
         private string fileName;
@@ -62,38 +64,38 @@ namespace aoc.y2019.day20
         private void findOuterJumps(char[,] grid, Dictionary<string, List<Point>> jumps) {
             var pt = new Point(2, 2);
 
-            while (grid[pt.x, pt.y] != ' ') {
-                if (grid[pt.x, pt.y] == '.') {
-                    addTop(grid, pt, jumps);
-                }
-                pt.y += 1;
-            }
-
-            pt.y -= 1;
-
-            while (grid[pt.x, pt.y] != ' ') {
-                if (grid[pt.x, pt.y] == '.') {
-                    addRight(grid, pt, jumps);
+            while (grid[pt.y, pt.x] != ' ') {
+                if (grid[pt.y, pt.x] == '.') {
+                    addTop(grid, new Point(pt), jumps);
                 }
                 pt.x += 1;
             }
 
             pt.x -= 1;
 
-            while (grid[pt.x, pt.y] != ' ') {
-                if (grid[pt.x, pt.y] == '.') {
-                    addBottom(grid, pt, jumps);
+            while (grid[pt.y, pt.x] != ' ') {
+                if (grid[pt.y, pt.x] == '.') {
+                    addRight(grid, new Point(pt), jumps);
                 }
-                pt.y -= 1;
+                pt.y += 1;
             }
 
-            pt.y += 1;
+            pt.y -= 1;
 
-            while (grid[pt.x, pt.y] != ' ') {
-                if (grid[pt.x, pt.y] == '.') {
-                    addLeft(grid, pt, jumps);
+            while (grid[pt.y, pt.x] != ' ') {
+                if (grid[pt.y, pt.x] == '.') {
+                    addBottom(grid, new Point(pt), jumps);
                 }
                 pt.x -= 1;
+            }
+
+            pt.x += 1;
+
+            while (grid[pt.y, pt.x] != ' ') {
+                if (grid[pt.y, pt.x] == '.') {
+                    addLeft(grid, new Point(pt), jumps);
+                }
+                pt.y -= 1;
             }
         }
 
@@ -104,24 +106,14 @@ namespace aoc.y2019.day20
         private void findInnerJumps(char[,] grid, Dictionary<string, List<Point>> jumps) {
             var pt = new Point(2, 2);
 
-            while (grid[pt.x, pt.y] != ' ') {
+            while (grid[pt.y, pt.x] != ' ') {
                 pt.x += 1;
                 pt.y += 1;
             }
 
-            while (grid[pt.x, pt.y] == ' ' || isNameChar(grid[pt.x, pt.y])) {
-                if (isNameChar(grid[pt.x, pt.y])) {
-                    addBottom(grid, new Point(pt.x - 1, pt.y), jumps);
-                }
-
-                pt.y += 1;
-            }
-
-            pt.y -= 1;
-
-            while (grid[pt.x, pt.y] == ' ' || isNameChar(grid[pt.x, pt.y])) {
-                if (isNameChar(grid[pt.x, pt.y])) {
-                    addLeft(grid, new Point(pt.x, pt.y + 1), jumps);
+            while (grid[pt.y, pt.x] == ' ' || isNameChar(grid[pt.y, pt.x])) {
+                if (isNameChar(grid[pt.y, pt.x])) {
+                    addBottom(grid, new Point(pt.x, pt.y - 1), jumps);
                 }
 
                 pt.x += 1;
@@ -129,45 +121,55 @@ namespace aoc.y2019.day20
 
             pt.x -= 1;
 
-            while (grid[pt.x, pt.y] == ' ' || isNameChar(grid[pt.x, pt.y])) {
-                if (isNameChar(grid[pt.x, pt.y])) {
-                    addTop(grid, new Point(pt.x + 1, pt.y), jumps);
+            while (grid[pt.y, pt.x] == ' ' || isNameChar(grid[pt.y, pt.x])) {
+                if (isNameChar(grid[pt.y, pt.x])) {
+                    addLeft(grid, new Point(pt.x + 1, pt.y), jumps);
                 }
 
-                pt.y -= 1;
+                pt.y += 1;
             }
 
-            pt.y += 1;
+            pt.y -= 1;
 
-            while (grid[pt.x, pt.y] == ' ' || isNameChar(grid[pt.x, pt.y])) {
-                if (isNameChar(grid[pt.x, pt.y])) {
-                    addRight(grid, new Point(pt.x, pt.y - 1), jumps);
+            while (grid[pt.y, pt.x] == ' ' || isNameChar(grid[pt.y, pt.x])) {
+                if (isNameChar(grid[pt.y, pt.x])) {
+                    addTop(grid, new Point(pt.x, pt.y + 1), jumps);
                 }
 
                 pt.x -= 1;
             }
+
+            pt.x += 1;
+
+            while (grid[pt.y, pt.x] == ' ' || isNameChar(grid[pt.y, pt.x])) {
+                if (isNameChar(grid[pt.y, pt.x])) {
+                    addRight(grid, new Point(pt.x - 1, pt.y), jumps);
+                }
+
+                pt.y -= 1;
+            }
         }
 
         private void addTop(char[,] grid, Point pt, Dictionary<string, List<Point>> jumps) {
-            var name = $"{grid[pt.x - 2, pt.y]}{grid[pt.x - 1, pt.y]}";
+            var name = $"{grid[pt.y - 2, pt.x]}{grid[pt.y - 1, pt.x]}";
 
             addJump(jumps, name, pt);
         }
 
         private void addBottom(char[,] grid, Point pt, Dictionary<string, List<Point>> jumps) {
-            var name = $"{grid[pt.x + 1, pt.y]}{grid[pt.x + 2, pt.y]}";
+            var name = $"{grid[pt.y + 1, pt.x]}{grid[pt.y + 2, pt.x]}";
 
             addJump(jumps, name, pt);
         }
 
         private void addRight(char[,] grid, Point pt, Dictionary<string, List<Point>> jumps) {
-            var name = $"{grid[pt.x, pt.y + 1]}{grid[pt.x, pt.y + 2]}";
+            var name = $"{grid[pt.y, pt.x + 1]}{grid[pt.y, pt.x + 2]}";
 
             addJump(jumps, name, pt);
         }
 
         private void addLeft(char[,] grid, Point pt, Dictionary<string, List<Point>> jumps) {
-            var name = $"{grid[pt.x, pt.y - 2]}{grid[pt.x, pt.y - 1]}";
+            var name = $"{grid[pt.y, pt.x - 2]}{grid[pt.y, pt.x - 1]}";
 
             addJump(jumps, name, pt);
         }
@@ -191,21 +193,36 @@ namespace aoc.y2019.day20
             return jumps;
         }
 
-        private GridItem[,] convertGrid(char[,] grid) {
+        private Grid convertToGrid(char[,] grid) {
             var height = grid.GetLength(0);
             var width = grid.GetLength(1);
             var items = new GridItem[height, width];
 
             convertNonJumps(items, grid);
-            findJumps(grid);
 
-            return items;
+            var jumps = findJumps(grid);
+
+            foreach (var entry in jumps) {
+                var name = entry.Key;
+                var pts = entry.Value;
+
+                if (pts.Count == 2) {
+                    var pt1 = pts[0];
+                    var pt2 = pts[1];
+
+                    items[pt1.y, pt1.x] = new Jump(pt2);
+                    items[pt2.y, pt2.x] = new Jump(pt1);
+                }
+            }
+
+            return new Grid(items, jumps);
         }
 
-        public void parseInput() {
+        public Grid parseInput() {
             var lines = aoc.utils.Parser.readLines(fileName);
             var grid = readGrid(lines);
-            var items = convertGrid(grid);
+
+            return convertToGrid(grid);
         }
     }
 }
