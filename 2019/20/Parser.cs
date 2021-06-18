@@ -10,7 +10,7 @@ namespace aoc.y2019.day20
     record Maze : GridItem;
     record Jump(Point pt) : GridItem;
 
-    record Grid(GridItem[,] items, Dictionary<string, List<Point>> jumps);
+    record Grid(GridItem[,] items, Dictionary<string, Point> innerJumps, Dictionary<string, Point> outerJumps);
 
     class Parser
     {
@@ -41,9 +41,10 @@ namespace aoc.y2019.day20
             return grid;
         }
 
-        private void convertNonJumps(GridItem[,] items, char[,] grid) {
+        private GridItem[,] convertNonJumps(char[,] grid) {
             var height = grid.GetLength(0);
             var width = grid.GetLength(1);
+            var items = new GridItem[height, width];
 
             for (var row = 0; row < height; row += 1) {
                 for (var col = 0; col < width; col += 1) {
@@ -59,14 +60,17 @@ namespace aoc.y2019.day20
                     };
                 }
             }
+
+            return items;
         }
 
-        private void findOuterJumps(char[,] grid, Dictionary<string, List<Point>> jumps) {
+        private Dictionary<string, Point> findOuterJumps(char[,] grid) {
+            var jumps = new Dictionary<string, Point>();
             var pt = new Point(2, 2);
 
             while (grid[pt.y, pt.x] != ' ') {
                 if (grid[pt.y, pt.x] == '.') {
-                    addTop(grid, new Point(pt), jumps);
+                    addTop(jumps, grid, new Point(pt));
                 }
                 pt.x += 1;
             }
@@ -75,7 +79,7 @@ namespace aoc.y2019.day20
 
             while (grid[pt.y, pt.x] != ' ') {
                 if (grid[pt.y, pt.x] == '.') {
-                    addRight(grid, new Point(pt), jumps);
+                    addRight(jumps, grid, new Point(pt));
                 }
                 pt.y += 1;
             }
@@ -84,7 +88,7 @@ namespace aoc.y2019.day20
 
             while (grid[pt.y, pt.x] != ' ') {
                 if (grid[pt.y, pt.x] == '.') {
-                    addBottom(grid, new Point(pt), jumps);
+                    addBottom(jumps, grid, new Point(pt));
                 }
                 pt.x -= 1;
             }
@@ -93,17 +97,20 @@ namespace aoc.y2019.day20
 
             while (grid[pt.y, pt.x] != ' ') {
                 if (grid[pt.y, pt.x] == '.') {
-                    addLeft(grid, new Point(pt), jumps);
+                    addLeft(jumps, grid, new Point(pt));
                 }
                 pt.y -= 1;
             }
+
+            return jumps;
         }
 
         private bool isNameChar(char ch) {
             return ch >= 'A' && ch <= 'Z';
         }
 
-        private void findInnerJumps(char[,] grid, Dictionary<string, List<Point>> jumps) {
+        private Dictionary<string, Point> findInnerJumps(char[,] grid) {
+            var jumps = new Dictionary<string, Point>();
             var pt = new Point(2, 2);
 
             while (grid[pt.y, pt.x] != ' ') {
@@ -113,7 +120,7 @@ namespace aoc.y2019.day20
 
             while (grid[pt.y, pt.x] == ' ' || isNameChar(grid[pt.y, pt.x])) {
                 if (isNameChar(grid[pt.y, pt.x])) {
-                    addBottom(grid, new Point(pt.x, pt.y - 1), jumps);
+                    addBottom(jumps, grid, new Point(pt.x, pt.y - 1));
                 }
 
                 pt.x += 1;
@@ -123,7 +130,7 @@ namespace aoc.y2019.day20
 
             while (grid[pt.y, pt.x] == ' ' || isNameChar(grid[pt.y, pt.x])) {
                 if (isNameChar(grid[pt.y, pt.x])) {
-                    addLeft(grid, new Point(pt.x + 1, pt.y), jumps);
+                    addLeft(jumps, grid, new Point(pt.x + 1, pt.y));
                 }
 
                 pt.y += 1;
@@ -133,7 +140,7 @@ namespace aoc.y2019.day20
 
             while (grid[pt.y, pt.x] == ' ' || isNameChar(grid[pt.y, pt.x])) {
                 if (isNameChar(grid[pt.y, pt.x])) {
-                    addTop(grid, new Point(pt.x, pt.y + 1), jumps);
+                    addTop(jumps, grid, new Point(pt.x, pt.y + 1));
                 }
 
                 pt.x -= 1;
@@ -143,79 +150,66 @@ namespace aoc.y2019.day20
 
             while (grid[pt.y, pt.x] == ' ' || isNameChar(grid[pt.y, pt.x])) {
                 if (isNameChar(grid[pt.y, pt.x])) {
-                    addRight(grid, new Point(pt.x - 1, pt.y), jumps);
+                    addRight(jumps, grid, new Point(pt.x - 1, pt.y));
                 }
 
                 pt.y -= 1;
             }
+
+            return jumps;
         }
 
-        private void addTop(char[,] grid, Point pt, Dictionary<string, List<Point>> jumps) {
+        private void addTop(Dictionary<string, Point> jumps, char[,] grid, Point pt) {
             var name = $"{grid[pt.y - 2, pt.x]}{grid[pt.y - 1, pt.x]}";
 
             addJump(jumps, name, pt);
         }
 
-        private void addBottom(char[,] grid, Point pt, Dictionary<string, List<Point>> jumps) {
+        private void addBottom(Dictionary<string, Point> jumps, char[,] grid, Point pt) {
             var name = $"{grid[pt.y + 1, pt.x]}{grid[pt.y + 2, pt.x]}";
 
             addJump(jumps, name, pt);
         }
 
-        private void addRight(char[,] grid, Point pt, Dictionary<string, List<Point>> jumps) {
+        private void addRight(Dictionary<string, Point> jumps, char[,] grid, Point pt) {
             var name = $"{grid[pt.y, pt.x + 1]}{grid[pt.y, pt.x + 2]}";
 
             addJump(jumps, name, pt);
         }
 
-        private void addLeft(char[,] grid, Point pt, Dictionary<string, List<Point>> jumps) {
+        private void addLeft(Dictionary<string, Point> jumps, char[,] grid, Point pt) {
             var name = $"{grid[pt.y, pt.x - 2]}{grid[pt.y, pt.x - 1]}";
 
             addJump(jumps, name, pt);
         }
 
-        private void addJump(Dictionary<string, List<Point>> jumps, string name, Point pt) {
-            if (!jumps.ContainsKey(name)) {
-                jumps[name] = new List<Point>();
-            }
-
-            jumps[name].Add(pt);
-        }
-
-        private Dictionary<string, List<Point>> findJumps(char[,] grid) {
-            var height = grid.GetLength(0);
-            var width = grid.GetLength(1);
-            var jumps = new Dictionary<string, List<Point>>();
-
-            findOuterJumps(grid, jumps);
-            findInnerJumps(grid, jumps);
-
-            return jumps;
+        private void addJump(Dictionary<string, Point> jumps, string name, Point pt) {
+            jumps[name] = pt;
         }
 
         private Grid convertToGrid(char[,] grid) {
             var height = grid.GetLength(0);
             var width = grid.GetLength(1);
-            var items = new GridItem[height, width];
 
-            convertNonJumps(items, grid);
+            var items = convertNonJumps(grid);
+            var outer = findOuterJumps(grid);
+            var inner = findInnerJumps(grid);
 
-            var jumps = findJumps(grid);
-
-            foreach (var entry in jumps) {
+            foreach (var entry in outer) {
                 var name = entry.Key;
-                var pts = entry.Value;
+                var outerPt = entry.Value;
 
-                if (pts.Count == 2) {
-                    var pt1 = pts[0];
-                    var pt2 = pts[1];
-
-                    items[pt1.y, pt1.x] = new Jump(pt2);
-                    items[pt2.y, pt2.x] = new Jump(pt1);
+                if (!inner.ContainsKey(name)) {
+                    items[outerPt.y, outerPt.x] = new Jump(outerPt);
+                    continue;
                 }
+
+                var innerPt = inner[name];
+                items[outerPt.y, outerPt.x] = new Jump(innerPt);
+                items[innerPt.y, innerPt.x] = new Jump(outerPt);
             }
 
-            return new Grid(items, jumps);
+            return new Grid(items, inner, outer);
         }
 
         public Grid parseInput() {

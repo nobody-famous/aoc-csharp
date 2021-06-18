@@ -3,7 +3,7 @@ using aoc.utils.geometry;
 
 namespace aoc.y2019.day20
 {
-    class Part1 : aoc.utils.ProblemSolver<int>
+    class Part1 : Solver<Point>
     {
         public Part1(string file, int exp) : base(file, exp) { }
 
@@ -23,7 +23,7 @@ namespace aoc.y2019.day20
             return isMaze(grid, pt) || isJump(grid, pt);
         }
 
-        private List<Point> findCandidates(Grid grid, Dictionary<Point, bool> seen, Point start, Point end) {
+        protected override List<Point> findCandidates(Grid grid, Dictionary<Point, bool> seen, Point start, Point end) {
             var candidates = new List<Point>();
             var toCheck = new List<Point>() {
                 new Point(start.x, start.y - 1),
@@ -55,55 +55,17 @@ namespace aoc.y2019.day20
             return candidates;
         }
 
-        private int findPath(Grid grid, Point start, Point end) {
-            var seen = new Dictionary<Point, bool>();
-            var candidates = new List<Point>() { start };
-            var done = false;
-            var dist = 0;
-
-            seen[start] = true;
-            while (!done) {
-                var nextCandidates = new List<Point>();
-
-                foreach (var pt in candidates) {
-                    if (pt.Equals(end)) {
-                        done = true;
-                    } else {
-                        var pts = findCandidates(grid, seen, pt, end);
-
-                        nextCandidates.AddRange(pts);
-                    }
-                }
-
-                if (!done) {
-                    dist += 1;
-                }
-
-                foreach (var pt in nextCandidates) {
-                    seen[pt] = true;
-                }
-
-                candidates = nextCandidates;
-            }
-
-            return dist;
-        }
-
         protected override int doWork() {
             var parser = new Parser(inputFile);
             var grid = parser.parseInput();
-            var startItem = grid.jumps["AA"];
-            var endItem = grid.jumps["ZZ"];
+            var startItem = grid.outerJumps["AA"];
+            var endItem = grid.outerJumps["ZZ"];
 
             if (startItem is null || endItem is null) {
                 throw new System.Exception("Could not find start or end point");
             }
 
-            if (startItem.Count != 1 || endItem.Count != 1) {
-                throw new System.Exception("End points have too many jumps");
-            }
-
-            return findPath(grid, startItem[0], endItem[0]);
+            return findPath(grid, startItem, endItem);
         }
     }
 }
