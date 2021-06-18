@@ -7,22 +7,6 @@ namespace aoc.y2019.day20
     {
         public Part1(string file, int exp) : base(file, exp) { }
 
-        private bool isMaze(Grid grid, Point pt) {
-            var item = grid.items[pt.y, pt.x];
-
-            return (item is Maze);
-        }
-
-        private bool isJump(Grid grid, Point pt) {
-            var item = grid.items[pt.y, pt.x];
-
-            return (item is Jump);
-        }
-
-        private bool isOpen(Grid grid, Point pt) {
-            return isMaze(grid, pt) || isJump(grid, pt);
-        }
-
         protected override List<Point> findCandidates(Grid grid, Dictionary<Point, bool> seen, Point start, Point end) {
             var candidates = new List<Point>();
             var toCheck = new List<Point>() {
@@ -32,8 +16,12 @@ namespace aoc.y2019.day20
                 new Point(start.x - 1, start.y)
             };
 
-            if (isJump(grid, start)) {
-                var jump = (Jump)grid.items[start.y, start.x];
+            if (grid.items[start.y, start.x] is OuterJump) {
+                var jump = (OuterJump)grid.items[start.y, start.x];
+
+                toCheck.Add(jump.pt);
+            } else if (grid.items[start.y, start.x] is InnerJump) {
+                var jump = (InnerJump)grid.items[start.y, start.x];
 
                 toCheck.Add(jump.pt);
             }

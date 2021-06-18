@@ -8,7 +8,8 @@ namespace aoc.y2019.day20
     record Empty : GridItem;
     record Wall : GridItem;
     record Maze : GridItem;
-    record Jump(Point pt) : GridItem;
+    record OuterJump(Point pt) : GridItem;
+    record InnerJump(Point pt) : GridItem;
 
     record Grid(GridItem[,] items, Dictionary<string, Point> innerJumps, Dictionary<string, Point> outerJumps);
 
@@ -200,13 +201,13 @@ namespace aoc.y2019.day20
                 var outerPt = entry.Value;
 
                 if (!inner.ContainsKey(name)) {
-                    items[outerPt.y, outerPt.x] = new Jump(outerPt);
+                    items[outerPt.y, outerPt.x] = new Maze();
                     continue;
                 }
 
                 var innerPt = inner[name];
-                items[outerPt.y, outerPt.x] = new Jump(innerPt);
-                items[innerPt.y, innerPt.x] = new Jump(outerPt);
+                items[outerPt.y, outerPt.x] = new OuterJump(innerPt);
+                items[innerPt.y, innerPt.x] = new InnerJump(outerPt);
             }
 
             return new Grid(items, inner, outer);

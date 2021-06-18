@@ -9,6 +9,16 @@ namespace aoc.y2019.day20
 
         protected abstract List<T> findCandidates(Grid grid, Dictionary<T, bool> seen, T pt, T end);
 
+        protected bool isMaze(Grid grid, Point pt) {
+            var item = grid.items[pt.y, pt.x];
+
+            return (item is Maze);
+        }
+
+        protected bool isOpen(Grid grid, Point pt) {
+            return isMaze(grid, pt) || grid.items[pt.y, pt.x] is OuterJump || grid.items[pt.y, pt.x] is InnerJump;
+        }
+
         protected int findPath(Grid grid, T start, T end) {
             var seen = new Dictionary<T, bool>();
             var candidates = new List<T>() { start };
@@ -16,7 +26,7 @@ namespace aoc.y2019.day20
             var dist = 0;
 
             seen[start] = true;
-            while (!done) {
+            while (!done && candidates.Count > 0) {
                 var nextCandidates = new List<T>();
 
                 foreach (var pt in candidates) {
