@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace aoc.intcode
+namespace aoc.y2019.intcode
 {
     interface IOHandler
     {

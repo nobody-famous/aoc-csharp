@@ -74,7 +74,7 @@ namespace aoc.y2019.day15
         }
 
         protected override int doWork() {
-            var prog = aoc.intcode.Parser.parseInput(inputFile);
+            var prog = aoc.y2019.intcode.Parser.parseInput(inputFile);
 
             buildGrid(prog);
 

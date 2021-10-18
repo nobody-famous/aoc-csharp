@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using aoc.intcode;
+using aoc.y2019.intcode;
 
 namespace aoc.y2019.day7
 {
@@ -53,7 +53,7 @@ namespace aoc.y2019.day7
         protected long[] prog;
 
         public Solver(string file, int exp) : base(file, exp) {
-            prog = aoc.intcode.Parser.parseInput(inputFile);
+            prog = aoc.y2019.intcode.Parser.parseInput(inputFile);
         }
 
         abstract protected long runChain(List<Amp> amps);

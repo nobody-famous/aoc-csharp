@@ -5,7 +5,7 @@ namespace aoc.y2019.day2
         protected Solver(string file, int exp) : base(file, exp) { }
 
         protected long runMachine(long[] prog, int noun, int verb) {
-            var mach = new aoc.intcode.Machine(prog);
+            var mach = new aoc.y2019.intcode.Machine(prog);
 
             mach[1] = noun;
             mach[2] = verb;
