@@ -7,7 +7,7 @@ namespace aoc.y2019.day15
         public Part1(string file, int exp) : base(file, exp) { }
 
         protected override int doWork() {
-            var prog = aoc.intcode.Parser.parseInput(inputFile);
+            var prog = aoc.y2019.intcode.Parser.parseInput(inputFile);
             var droids = new List<Droid>() { new Droid(prog) };
             var nxtDroids = new List<Droid>();
             var dist = 0;

@@ -1,6 +1,6 @@
 using System;
 
-namespace aoc.intcode
+namespace aoc.y2019.intcode
 {
     class Parser
     {

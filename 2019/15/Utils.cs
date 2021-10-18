@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using aoc.intcode;
+using aoc.y2019.intcode;
 using aoc.utils.geometry;
 
 namespace aoc.y2019.day15

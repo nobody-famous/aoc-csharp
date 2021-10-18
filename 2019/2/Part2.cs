@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using aoc.intcode;
+using aoc.y2019.intcode;
 
 namespace aoc.y2019.day2
 {
