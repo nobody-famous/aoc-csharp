@@ -10,11 +10,15 @@ namespace aoc.y2019.day21
 
         protected override string[] getCommands() {
             return new string[] {
-                "NOT A J",
-                "NOT B T",
+                "NOT A T",
+                "NOT B J",
                 "OR T J",
                 "NOT C T",
                 "OR T J",
+                "NOT E T",
+                "AND H T",
+                "OR E T",
+                "AND T J",
                 "AND D J",
              };
         }
