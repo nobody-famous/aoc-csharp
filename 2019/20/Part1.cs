@@ -46,14 +46,19 @@ namespace aoc.y2019.day20
         protected override int doWork() {
             var parser = new Parser(inputFile);
             var grid = parser.parseInput();
-            var startItem = grid.outerJumps["AA"];
-            var endItem = grid.outerJumps["ZZ"];
+            // var startItem = grid.outerJumps["AA"];
+            // var endItem = grid.outerJumps["ZZ"];
 
-            if (startItem is null || endItem is null) {
-                throw new System.Exception("Could not find start or end point");
-            }
+            // if (startItem is null || endItem is null) {
+            //     throw new System.Exception("Could not find start or end point");
+            // }
 
-            return findPath(grid, startItem, endItem);
+            // return findPath(grid, startItem, endItem);
+
+            var mapper = new DistMapper(grid);
+            mapper.map();
+
+            return 0;
         }
     }
 }

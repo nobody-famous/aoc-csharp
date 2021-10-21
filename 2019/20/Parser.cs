@@ -8,10 +8,10 @@ namespace aoc.y2019.day20
     record Empty : GridItem;
     record Wall : GridItem;
     record Maze : GridItem;
-    record OuterJump(Point pt) : GridItem;
-    record InnerJump(Point pt) : GridItem;
+    record OuterJump(string label, Point pt) : GridItem;
+    record InnerJump(string label, Point pt) : GridItem;
 
-    record Grid(GridItem[,] items, Dictionary<string, Point> innerJumps, Dictionary<string, Point> outerJumps);
+    record Grid(GridItem[,] items, Dictionary<string, Point> innerJumps, Dictionary<string, Point> outerJumps, Dictionary<string, Point> jumps);
 
     class Parser
     {
@@ -188,6 +188,20 @@ namespace aoc.y2019.day20
             jumps[name] = pt;
         }
 
+        private Dictionary<string, Point> combineJumps(Dictionary<string, Point> inner, Dictionary<string, Point> outer) {
+            var jumps = new Dictionary<string, Point>();
+
+            foreach (var entry in outer) {
+                jumps[entry.Key] = entry.Value;
+            }
+
+            foreach (var entry in inner) {
+                jumps[entry.Key.ToLower()] = entry.Value;
+            }
+
+            return jumps;
+        }
+
         private Grid convertToGrid(char[,] grid) {
             var height = grid.GetLength(0);
             var width = grid.GetLength(1);
@@ -206,11 +220,13 @@ namespace aoc.y2019.day20
                 }
 
                 var innerPt = inner[name];
-                items[outerPt.y, outerPt.x] = new OuterJump(innerPt);
-                items[innerPt.y, innerPt.x] = new InnerJump(outerPt);
+                items[outerPt.y, outerPt.x] = new OuterJump(name, innerPt);
+                items[innerPt.y, innerPt.x] = new InnerJump(name, outerPt);
             }
 
-            return new Grid(items, inner, outer);
+            var jumps = combineJumps(inner, outer);
+
+            return new Grid(items, inner, outer, jumps);
         }
 
         public Grid parseInput() {
